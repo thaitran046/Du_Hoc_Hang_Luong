@@ -5,46 +5,96 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
-      message: 'Method not allowed'
+      message: 'Method not allowed',
     });
   }
 
   try {
-    const response = await fetch(
-      GOOGLE_SCRIPT_URL,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify(req.body),
-        redirect: 'follow'
-      }
-    );
+    const {
+      role = '',
+      program = '',
+      fullName = '',
+      phone = '',
+      email = '',
+      country = '',
+      timeframe = '',
+      needs = [],
+    } = req.body || {};
+
+    if (!fullName.trim() || !phone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Thiếu họ tên hoặc số điện thoại',
+      });
+    }
+
+    const payload = {
+      role,
+      program,
+      fullName,
+      phone,
+      email,
+      country,
+      timeframe,
+      needs,
+    };
+
+    console.log('Sending to Apps Script:', payload);
+
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+
+      // Apps Script xử lý kiểu này ổn định hơn application/json
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+      },
+
+      body: JSON.stringify(payload),
+
+      redirect: 'follow',
+    });
 
     const text = await response.text();
 
-    console.log('Apps Script status:', response.status);
-    console.log('Apps Script response:', text);
+    console.log('Apps Script HTTP:', response.status);
+    console.log('Apps Script URL:', response.url);
+    console.log('Apps Script body:', text);
 
-    let result;
-
-    try {
-      result = JSON.parse(text);
-    } catch {
+    if (!response.ok) {
       throw new Error(
-        'Apps Script không trả JSON: ' + text.slice(0, 200)
+        `Apps Script HTTP ${response.status}`
       );
     }
 
-    if (!result.success) {
-      throw new Error(
-        result.message || 'Apps Script failed'
-      );
+    // Nếu Apps Script có trả JSON thì kiểm tra success
+    if (text && text.trim()) {
+      try {
+        const result = JSON.parse(text);
+
+        if (result.success === false) {
+          throw new Error(
+            result.message || 'Apps Script báo lỗi'
+          );
+        }
+      } catch (error) {
+        // Nếu chính Apps Script trả success:false thì ném lỗi
+        if (
+          error.message &&
+          error.message !== 'Unexpected end of JSON input' &&
+          !error.message.includes('Unexpected token')
+        ) {
+          throw error;
+        }
+
+        console.log(
+          'Apps Script returned non-JSON response.'
+        );
+      }
     }
 
     return res.status(200).json({
-      success: true
+      success: true,
+      message: 'Lead sent',
     });
 
   } catch (error) {
@@ -52,7 +102,8 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       success: false,
-      message: error.message
+      message:
+        error?.message || 'Lead submission failed',
     });
   }
 }
