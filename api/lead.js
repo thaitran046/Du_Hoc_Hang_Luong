@@ -1,5 +1,29 @@
-const GOOGLE_SCRIPT_URL =
-  'https://script.google.com/u/0/home/projects/1nz_tVqxf_bZISWoWydJY5ECOHtrajkiUQsInjw_Kx6VPcjheSBxaRGPB/edit';
+const GOOGLE_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSfWKMT14OkabcCipsolbeeQ28sEMuJpr-8BGOvzzFLjmSD1Uw/formResponse';
+
+// Các giá trị THẬT đang có trên Google Form
+const VALID_TIMEFRAMES = [
+  'Trong 3 tháng tới',
+  '3 - 6 tháng',
+  '1 - 2 năm',
+  'Chưa quyết định',
+];
+
+const NEED_MAP = {
+  'Chọn ngành': 'Chọn Ngành',
+  'Chọn Ngành': 'Chọn Ngành',
+
+  'Chọn trường': 'Chọn trường',
+
+  'Học bổng': 'Học Bổng',
+  'Học Bổng': 'Học Bổng',
+
+  'Hồ sơ nhập học': 'Hồ sơ nhập học',
+  Visa: 'Visa',
+  'Chi phí': 'Chi phí',
+  'Hướng nghiệp': 'Hướng nghiệp',
+  'Lộ trình học': 'Lộ trình học',
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -21,127 +45,153 @@ export default async function handler(req, res) {
       needs = [],
     } = req.body || {};
 
-    if (!fullName.trim() || !phone.trim()) {
+    // Google Form đang bắt buộc 3 field này
+    if (!fullName.trim()) {
       return res.status(400).json({
         success: false,
-        message: 'Thiếu họ tên hoặc số điện thoại',
+        message: 'Thiếu họ tên',
       });
     }
 
-    const payload = {
-      role,
-      program,
-      fullName,
-      phone,
-      email,
-      country,
-      timeframe,
-      needs: Array.isArray(needs) ? needs : [],
-    };
+    if (!phone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Thiếu số điện thoại',
+      });
+    }
+
+    if (!email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Google Form đang yêu cầu Email bắt buộc',
+      });
+    }
+
+    const form = new URLSearchParams();
+
+    // Bạn là ai?
+    if (role) {
+      form.append(
+        'entry.786228905',
+        role
+      );
+    }
+
+    // Chương trình
+    if (program) {
+      form.append(
+        'entry.1432927249',
+        program
+      );
+    }
+
+    // Họ tên
+    form.append(
+      'entry.741405596',
+      fullName.trim()
+    );
+
+    // Điện thoại
+    form.append(
+      'entry.1415447158',
+      phone.trim()
+    );
+
+    // Email - bắt buộc
+    form.append(
+      'entry.1045781291',
+      email.trim()
+    );
+
+    // Quốc gia
+    if (country) {
+      form.append(
+        'entry.1005224062',
+        country
+      );
+    }
+
+    /*
+      Chỉ gửi timeframe nếu nó thực sự tồn tại
+      trong Google Form.
+
+      Nếu landing page chọn "6 - 12 tháng",
+      tạm thời KHÔNG gửi field này để tránh 400.
+    */
+    if (
+      timeframe &&
+      VALID_TIMEFRAMES.includes(timeframe)
+    ) {
+      form.append(
+        'entry.965295111',
+        timeframe
+      );
+    }
+
+    // Checkbox - chuẩn hóa đúng chữ của Google Form
+    if (Array.isArray(needs)) {
+      needs.forEach((need) => {
+        const googleValue =
+          NEED_MAP[need];
+
+        if (googleValue) {
+          form.append(
+            'entry.2120121799',
+            googleValue
+          );
+        }
+      });
+    }
 
     console.log(
-      'LEAD PAYLOAD:',
-      JSON.stringify(payload)
+      'GOOGLE FORM PAYLOAD:',
+      form.toString()
     );
 
     const response = await fetch(
-      GOOGLE_SCRIPT_URL,
+      GOOGLE_FORM_URL,
       {
         method: 'POST',
 
         headers: {
           'Content-Type':
-            'text/plain;charset=utf-8',
+            'application/x-www-form-urlencoded;charset=UTF-8',
         },
 
-        body: JSON.stringify(payload),
+        body: form.toString(),
 
-        redirect: 'follow',
+        redirect: 'manual',
       }
     );
 
-    const text = await response.text();
-
     console.log(
-      'APPS SCRIPT STATUS:',
+      'GOOGLE FORM STATUS:',
       response.status
     );
 
-    console.log(
-      'APPS SCRIPT FINAL URL:',
-      response.url
-    );
+    /*
+      Google Forms có thể trả redirect
+      sau khi submit.
+    */
+    if (
+      ![200, 302, 303].includes(
+        response.status
+      )
+    ) {
+      const body =
+        await response.text();
 
-    console.log(
-      'APPS SCRIPT CONTENT TYPE:',
-      response.headers.get('content-type')
-    );
-
-    console.log(
-      'APPS SCRIPT BODY:',
-      text
-    );
-
-    // HTTP từ Google/Apps Script bị lỗi
-    if (!response.ok) {
-      return res.status(502).json({
-        success: false,
-
-        message:
-          `Apps Script HTTP ${response.status}`,
-
-        appsScriptResponse:
-          text.substring(0, 500),
-      });
-    }
-
-    // Apps Script trả body rỗng
-    if (!text || !text.trim()) {
-      return res.status(502).json({
-        success: false,
-        message:
-          'Apps Script trả response rỗng',
-      });
-    }
-
-    // Thử đọc JSON
-    let result;
-
-    try {
-      result = JSON.parse(text);
-    } catch (error) {
       console.error(
-        'APPS SCRIPT NON JSON:',
-        text.substring(0, 1000)
+        'GOOGLE FORM ERROR:',
+        response.status,
+        body.substring(0, 500)
       );
 
       return res.status(502).json({
         success: false,
-
         message:
-          'Apps Script không trả JSON',
-
-        appsScriptResponse:
-          text.substring(0, 500),
-
-        finalUrl:
-          response.url,
-      });
-    }
-
-    // Apps Script trả JSON nhưng báo thất bại
-    if (result.success !== true) {
-      console.error(
-        'APPS SCRIPT FAILED:',
-        result
-      );
-
-      return res.status(502).json({
-        success: false,
-
-        message:
-          result.message ||
-          'Apps Script báo thất bại',
+          `Google Form failed: ${response.status}`,
       });
     }
 
@@ -153,7 +203,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: 'Lead submitted successfully',
     });
 
   } catch (error) {
@@ -164,7 +213,6 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       success: false,
-
       message:
         error?.message ||
         'Internal server error',
