@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  motion,
+  AnimatePresence,
+} from 'framer-motion';
+
 import {
   ChevronRight,
   GraduationCap,
@@ -8,8 +12,15 @@ import {
   Send,
 } from 'lucide-react';
 
-import { cn, useUtm } from '../lib/utils';
-import { getAttribution, track } from '../lib/tracking';
+import {
+  cn,
+  useUtm,
+} from '../lib/utils';
+
+import {
+  getAttribution,
+  track,
+} from '../lib/tracking';
 
 const roles = [
   {
@@ -76,106 +87,55 @@ const assistance = [
   'Lộ trình học',
 ];
 
-// ======================================================
-// GOOGLE FORM CONFIG
-// ======================================================
+// ================================
+// SEND LEAD TO VERCEL API
+// ================================
 
-const GOOGLE_FORM_ACTION =
-  'https://docs.google.com/forms/d/e/1FAIpQLSfWKMT14OkabcCipsolbeeQ28sEMuJpr-8BGOvzzFLjmSD1Uw/formResponse';
-
-const GOOGLE_FORM_FIELDS = {
-  role: 'entry.786228905',
-  program: 'entry.1432927249',
-  fullName: 'entry.741405596',
-  phone: 'entry.1415447158',
-  email: 'entry.1045781291',
-  country: 'entry.1005224062',
-  timeframe: 'entry.965295111',
-  needs: 'entry.2120121799',
-};
-
-// ======================================================
-// SEND TO GOOGLE FORM
-// ======================================================
-
-async function sendLeadToGoogleForm(data) {
-  const payload = new URLSearchParams();
-
-  const appendIfValue = (field, value) => {
-    if (
-      value !== undefined &&
-      value !== null &&
-      String(value).trim() !== ''
-    ) {
-      payload.append(field, String(value));
+async function sendLead(data) {
+  const response = await fetch(
+    '/api/lead',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type':
+          'application/json',
+      },
+      body: JSON.stringify(data),
     }
-  };
-
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.role,
-    data.role
   );
 
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.program,
-    data.program
-  );
+  let result = {};
 
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.fullName,
-    data.fullName
-  );
-
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.phone,
-    data.phone
-  );
-
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.email,
-    data.email
-  );
-
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.country,
-    data.country
-  );
-
-  appendIfValue(
-    GOOGLE_FORM_FIELDS.timeframe,
-    data.timeframe
-  );
-
-  if (Array.isArray(data.needs)) {
-    data.needs.forEach((need) => {
-      if (need) {
-        payload.append(
-          GOOGLE_FORM_FIELDS.needs,
-          need
-        );
-      }
-    });
+  try {
+    result =
+      await response.json();
+  } catch {
+    result = {};
   }
 
-  await fetch(GOOGLE_FORM_ACTION, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type':
-        'application/x-www-form-urlencoded;charset=UTF-8',
-    },
-    body: payload.toString(),
-  });
-}
+  if (
+    !response.ok ||
+    !result.success
+  ) {
+    throw new Error(
+      result.message ||
+        `Lead API returned ${response.status}`
+    );
+  }
 
-// ======================================================
-// COMPONENT
-// ======================================================
+  return result;
+}
 
 export default function LeadForm({
   className,
 }) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] =
+    useState(1);
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] = useState(false);
 
   const [formData, setFormData] =
     useState({
@@ -188,9 +148,6 @@ export default function LeadForm({
       timeframe: '',
       needs: [],
     });
-
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
 
   const utm = useUtm();
 
@@ -210,22 +167,28 @@ export default function LeadForm({
   const toggleNeed = (need) => {
     setFormData((prev) => ({
       ...prev,
-      needs: prev.needs.includes(need)
-        ? prev.needs.filter(
-            (n) => n !== need
-          )
-        : [...prev.needs, need],
+
+      needs:
+        prev.needs.includes(need)
+          ? prev.needs.filter(
+              (item) =>
+                item !== need
+            )
+          : [
+              ...prev.needs,
+              need,
+            ],
     }));
   };
 
-  // ======================================================
-  // SUBMIT
-  // ======================================================
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e
+  ) => {
     e.preventDefault();
 
-    if (!formData.fullName.trim()) {
+    if (
+      !formData.fullName.trim()
+    ) {
       alert(
         'Vui lòng nhập họ và tên.'
       );
@@ -246,8 +209,10 @@ export default function LeadForm({
         ...formData,
         ...utm,
         ...getAttribution(),
+
         page_url:
           window.location.href,
+
         date_created:
           new Date().toISOString(),
       };
@@ -255,21 +220,29 @@ export default function LeadForm({
       track('submit_form', {
         form_name:
           'lead_consultation',
+
         country:
           formData.country,
+
         program:
           formData.program,
       });
 
-      await sendLeadToGoogleForm(
-        finalData
+      const result =
+        await sendLead(finalData);
+
+      console.log(
+        'Lead result:',
+        result
       );
 
       track('generate_lead', {
         form_name:
           'lead_consultation',
+
         country:
           formData.country,
+
         program:
           formData.program,
       });
@@ -279,13 +252,11 @@ export default function LeadForm({
         '1'
       );
 
-      setTimeout(() => {
-        window.location.href =
-          '/cam-on';
-      }, 700);
+      window.location.href =
+        '/cam-on';
     } catch (error) {
       console.error(
-        'Google Form submission failed:',
+        'Lead submission failed:',
         error
       );
 
@@ -311,22 +282,25 @@ export default function LeadForm({
       )}
     >
       {/* HEADER */}
+
       <div className="bg-brand-blue p-6 text-white text-center">
         <h3 className="text-xl font-bold">
-          NHẬN TƯ VẤN LỘ TRÌNH MIỄN PHÍ
+          NHẬN TƯ VẤN LỘ TRÌNH
+          MIỄN PHÍ
         </h3>
 
         <p className="text-red-100 text-sm mt-1">
-          Để lại thông tin, chuyên
-          viên Hằng Lương sẽ liên hệ
-          tư vấn lộ trình phù hợp nhất
-          cho bạn.
+          Để lại thông tin,
+          chuyên viên Hằng Lương
+          sẽ liên hệ tư vấn lộ
+          trình phù hợp nhất cho
+          bạn.
         </p>
 
         <div className="flex items-center justify-center mt-6 space-x-2">
           <div
             className={cn(
-              'h-1.5 w-12 rounded-full transition-colors',
+              'h-1.5 w-12 rounded-full',
               step >= 1
                 ? 'bg-white'
                 : 'bg-red-400'
@@ -335,7 +309,7 @@ export default function LeadForm({
 
           <div
             className={cn(
-              'h-1.5 w-12 rounded-full transition-colors',
+              'h-1.5 w-12 rounded-full',
               step >= 2
                 ? 'bg-white'
                 : 'bg-red-400'
@@ -367,46 +341,58 @@ export default function LeadForm({
               className="space-y-6"
             >
               {/* ROLE */}
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   Bạn là ai?
                 </label>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {roles.map((r) => {
-                    const Icon =
-                      r.icon;
+                  {roles.map(
+                    (role) => {
+                      const Icon =
+                        role.icon;
 
-                    return (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() =>
-                          setFormData(
-                            (prev) => ({
-                              ...prev,
-                              role: r.label,
-                            })
-                          )
-                        }
-                        className={cn(
-                          'flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all text-sm',
-                          formData.role ===
-                            r.label
-                            ? 'border-brand-blue bg-red-50 text-brand-blue'
-                            : 'border-slate-100 hover:border-slate-200 text-slate-600'
-                        )}
-                      >
-                        <Icon className="w-6 h-6 mb-2" />
+                      return (
+                        <button
+                          key={
+                            role.id
+                          }
+                          type="button"
+                          onClick={() =>
+                            setFormData(
+                              (
+                                prev
+                              ) => ({
+                                ...prev,
+                                role:
+                                  role.label,
+                              })
+                            )
+                          }
+                          className={cn(
+                            'flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all text-sm',
 
-                        {r.label}
-                      </button>
-                    );
-                  })}
+                            formData.role ===
+                              role.label
+                              ? 'border-brand-blue bg-red-50 text-brand-blue'
+                              : 'border-slate-100 text-slate-600 hover:border-slate-200'
+                          )}
+                        >
+                          <Icon className="w-6 h-6 mb-2" />
+
+                          {
+                            role.label
+                          }
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
               </div>
 
               {/* PROGRAM */}
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   Bạn quan tâm chương
@@ -417,22 +403,27 @@ export default function LeadForm({
                   {programs.map(
                     (program) => (
                       <button
-                        key={program}
+                        key={
+                          program
+                        }
                         type="button"
                         onClick={() =>
                           setFormData(
-                            (prev) => ({
+                            (
+                              prev
+                            ) => ({
                               ...prev,
                               program,
                             })
                           )
                         }
                         className={cn(
-                          'px-3 py-2 rounded-lg border text-xs font-medium transition-all text-left',
+                          'px-3 py-2 rounded-lg border text-xs font-medium text-left transition-all',
+
                           formData.program ===
                             program
                             ? 'border-brand-blue bg-red-50 text-brand-blue'
-                            : 'border-slate-100 hover:border-slate-200 text-slate-600'
+                            : 'border-slate-100 text-slate-600 hover:border-slate-200'
                         )}
                       >
                         {program}
@@ -449,11 +440,9 @@ export default function LeadForm({
                   !formData.role ||
                   !formData.program
                 }
-                className="w-full bg-brand-red text-white py-4 rounded-xl font-bold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
+                className="w-full bg-brand-red text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <span>
-                  TIẾP TỤC
-                </span>
+                TIẾP TỤC
 
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -475,7 +464,8 @@ export default function LeadForm({
               }}
               className="space-y-5"
             >
-              {/* NAME + PHONE */}
+              {/* NAME / PHONE */}
+
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
@@ -486,13 +476,16 @@ export default function LeadForm({
                     required
                     type="text"
                     placeholder="Nguyễn Văn A"
-                    className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-brand-blue outline-none"
                     value={
                       formData.fullName
                     }
-                    onChange={(e) =>
+                    onChange={(
+                      e
+                    ) =>
                       setFormData(
-                        (prev) => ({
+                        (
+                          prev
+                        ) => ({
                           ...prev,
                           fullName:
                             e.target
@@ -500,6 +493,7 @@ export default function LeadForm({
                         })
                       )
                     }
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 outline-none"
                   />
                 </div>
 
@@ -512,13 +506,16 @@ export default function LeadForm({
                     required
                     type="tel"
                     placeholder="09xx xxx xxx"
-                    className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-brand-blue outline-none"
                     value={
                       formData.phone
                     }
-                    onChange={(e) =>
+                    onChange={(
+                      e
+                    ) =>
                       setFormData(
-                        (prev) => ({
+                        (
+                          prev
+                        ) => ({
                           ...prev,
                           phone:
                             e.target
@@ -526,11 +523,13 @@ export default function LeadForm({
                         })
                       )
                     }
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 outline-none"
                   />
                 </div>
               </div>
 
               {/* EMAIL */}
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
                   Email
@@ -539,21 +538,25 @@ export default function LeadForm({
                 <input
                   type="email"
                   placeholder="example@gmail.com"
-                  className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-brand-blue outline-none"
-                  value={formData.email}
+                  value={
+                    formData.email
+                  }
                   onChange={(e) =>
                     setFormData(
                       (prev) => ({
                         ...prev,
                         email:
-                          e.target.value,
+                          e.target
+                            .value,
                       })
                     )
                   }
+                  className="w-full px-4 py-3 rounded-lg border border-slate-200 outline-none"
                 />
               </div>
 
-              {/* COUNTRY + TIME */}
+              {/* COUNTRY / TIME */}
+
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
@@ -561,7 +564,6 @@ export default function LeadForm({
                   </label>
 
                   <select
-                    className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-brand-blue outline-none bg-white"
                     value={
                       formData.country
                     }
@@ -575,6 +577,7 @@ export default function LeadForm({
                         })
                       )
                     }
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-white"
                   >
                     <option value="">
                       Chọn quốc gia
@@ -590,7 +593,9 @@ export default function LeadForm({
                             country
                           }
                         >
-                          {country}
+                          {
+                            country
+                          }
                         </option>
                       )
                     )}
@@ -603,7 +608,6 @@ export default function LeadForm({
                   </label>
 
                   <select
-                    className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-brand-blue outline-none bg-white"
                     value={
                       formData.timeframe
                     }
@@ -617,6 +621,7 @@ export default function LeadForm({
                         })
                       )
                     }
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-white"
                   >
                     <option value="">
                       Chọn thời gian
@@ -637,6 +642,7 @@ export default function LeadForm({
               </div>
 
               {/* NEEDS */}
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Bạn cần hỗ trợ điều
@@ -656,7 +662,8 @@ export default function LeadForm({
                           )
                         }
                         className={cn(
-                          'px-3 py-1.5 rounded-full border text-xs font-medium transition-all',
+                          'px-3 py-1.5 rounded-full border text-xs font-medium',
+
                           formData.needs.includes(
                             need
                           )
@@ -672,6 +679,7 @@ export default function LeadForm({
               </div>
 
               {/* BUTTONS */}
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
@@ -681,7 +689,7 @@ export default function LeadForm({
                   disabled={
                     isSubmitting
                   }
-                  className="px-6 py-4 rounded-xl font-bold border-2 border-slate-100 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  className="px-6 py-4 rounded-xl font-bold border-2 border-slate-100 text-slate-600 disabled:opacity-50"
                 >
                   QUAY LẠI
                 </button>
@@ -691,26 +699,24 @@ export default function LeadForm({
                   disabled={
                     isSubmitting
                   }
-                  className="flex-1 bg-brand-blue text-white py-4 rounded-xl font-bold flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 bg-brand-blue text-white py-4 rounded-xl font-bold flex items-center justify-center"
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center">
+                    <>
                       <Send className="w-5 h-5 mr-2 animate-pulse" />
                       ĐANG GỬI...
-                    </span>
+                    </>
                   ) : (
-                    <span>
-                      NHẬN TƯ VẤN
-                      MIỄN PHÍ
-                    </span>
+                    'NHẬN TƯ VẤN MIỄN PHÍ'
                   )}
                 </button>
               </div>
 
-              <p className="text-[10px] text-slate-400 text-center italic mt-2">
-                Thông tin của bạn được
-                bảo mật và chỉ sử dụng
-                cho mục đích tư vấn.
+              <p className="text-[10px] text-slate-400 text-center italic">
+                Thông tin của bạn
+                được bảo mật và chỉ
+                sử dụng cho mục đích
+                tư vấn.
               </p>
             </motion.div>
           )}
