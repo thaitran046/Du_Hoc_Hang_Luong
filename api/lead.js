@@ -8,97 +8,141 @@ export default async function handler(req, res) {
 
   try {
     const {
-      role,
-      program,
-      fullName,
-      phone,
-      email,
-      country,
-      timeframe,
+      role = '',
+      program = '',
+      fullName = '',
+      phone = '',
+      email = '',
+      country = '',
+      timeframe = '',
       needs = [],
     } = req.body || {};
 
-    if (!fullName || !phone) {
+    if (!fullName.trim() || !phone.trim()) {
       return res.status(400).json({
         success: false,
         message: 'Thiếu họ tên hoặc số điện thoại',
       });
     }
 
-    const GOOGLE_FORM_ACTION =
+    const GOOGLE_FORM_URL =
       'https://docs.google.com/forms/d/e/1FAIpQLSfWKMT14OkabcCipsolbeeQ28sEMuJpr-8BGOvzzFLjmSD1Uw/formResponse';
 
-    const payload = new URLSearchParams();
+    const formData = new URLSearchParams();
 
-    if (role) {
-      payload.append('entry.786228905', role);
-    }
+    // Bạn là ai?
+    formData.append(
+      'entry.786228905',
+      role
+    );
 
-    if (program) {
-      payload.append('entry.1432927249', program);
-    }
+    // Chương trình quan tâm
+    formData.append(
+      'entry.1432927249',
+      program
+    );
 
-    payload.append('entry.741405596', fullName);
-    payload.append('entry.1415447158', phone);
+    // Họ tên
+    formData.append(
+      'entry.741405596',
+      fullName
+    );
 
+    // Số điện thoại
+    formData.append(
+      'entry.1415447158',
+      phone
+    );
+
+    // Email
     if (email) {
-      payload.append('entry.1045781291', email);
+      formData.append(
+        'entry.1045781291',
+        email
+      );
     }
 
+    // Quốc gia
     if (country) {
-      payload.append('entry.1005224062', country);
+      formData.append(
+        'entry.1005224062',
+        country
+      );
     }
 
+    // Thời gian
     if (timeframe) {
-      payload.append('entry.965295111', timeframe);
+      formData.append(
+        'entry.965295111',
+        timeframe
+      );
     }
 
+    // Checkbox - hỗ trợ nhiều lựa chọn
     if (Array.isArray(needs)) {
       needs.forEach((need) => {
         if (need) {
-          payload.append('entry.2120121799', need);
+          formData.append(
+            'entry.2120121799',
+            need
+          );
         }
       });
     }
 
-    const googleResponse = await fetch(
-      GOOGLE_FORM_ACTION,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-            'application/x-www-form-urlencoded;charset=UTF-8',
-        },
-        body: payload.toString(),
-        redirect: 'manual',
-      }
+    console.log(
+      'Sending lead:',
+      fullName,
+      phone
     );
 
+    const googleResponse =
+      await fetch(GOOGLE_FORM_URL, {
+        method: 'POST',
+
+        headers: {
+          'Content-Type':
+            'application/x-www-form-urlencoded',
+        },
+
+        body: formData.toString(),
+
+        // Cho fetch tự follow redirect của Google
+        redirect: 'follow',
+      });
+
     console.log(
-      'Google Form status:',
+      'Google final status:',
       googleResponse.status
     );
 
-    /*
-      Google Form có thể trả:
-      200
-      302
-      303
+    console.log(
+      'Google final URL:',
+      googleResponse.url
+    );
 
-      đều có thể là submit thành công.
+    /*
+      Google Forms thường trả về HTML trang xác nhận.
+      Vì vậy KHÔNG parse response thành JSON.
     */
 
-    if (
-      ![200, 302, 303].includes(
-        googleResponse.status
-      )
-    ) {
-      const responseText =
-        await googleResponse.text();
+    const responseText =
+      await googleResponse.text();
 
+    console.log(
+      'Google response received:',
+      responseText.length
+    );
+
+    /*
+      Nếu Google trả lỗi HTTP thực sự
+      mới coi là thất bại.
+    */
+
+    if (!googleResponse.ok) {
       console.error(
-        'Google Form response:',
-        responseText
+        'Google Form failed:',
+        googleResponse.status
       );
 
       return res.status(502).json({
@@ -110,12 +154,17 @@ export default async function handler(req, res) {
       });
     }
 
+    console.log(
+      'LEAD SUCCESS:',
+      fullName,
+      phone
+    );
+
     return res.status(200).json({
       success: true,
-      message: 'Lead sent successfully',
-      googleStatus:
-        googleResponse.status,
+      message: 'Lead submitted',
     });
+
   } catch (error) {
     console.error(
       'Lead API error:',
