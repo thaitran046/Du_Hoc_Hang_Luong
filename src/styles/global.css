@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-brand-blue: #e31b23;
+  --color-brand-red: #e31b23;
+  --color-brand-dark: #1a1a1a;
+  --font-lexend: "Lexend", sans-serif;
+}
+
+* {
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Lexend", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #e31b23 0%, #a80f18 100%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Custom Checkbox/Radio styling for the form */
+.form-card-active {
+  @apply border-brand-blue bg-red-50 ring-2 ring-brand-blue/20;
+}
+
+
+.destination-rail { scrollbar-width: none; -ms-overflow-style: none; }
+.destination-rail::-webkit-scrollbar { display: none; }
