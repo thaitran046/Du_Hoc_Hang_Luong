@@ -8,6 +8,7 @@ const GOOGLE_FORM_URL =
 const VALID_TIMEFRAMES = [
   'Trong 3 tháng tới',
   '3 - 6 tháng',
+  '6 - 12 tháng',
   '1 - 2 năm',
   'Chưa quyết định',
 ];
@@ -88,10 +89,19 @@ async function sendEmail({
   html,
 }) {
   const apiKey =
-    process.env.RESEND_API_KEY;
+    process.env.RESEND_API_KEY?.trim();
 
   const from =
-    process.env.EVENT_FROM_EMAIL;
+    process.env.EVENT_FROM_EMAIL?.trim();
+
+  // Chỉ log kiểm tra, KHÔNG log toàn bộ API key
+  console.log('RESEND CONFIG:', {
+    keyPresent: Boolean(apiKey),
+    keyPrefixOk: apiKey?.startsWith('re_') || false,
+    keyLength: apiKey?.length || 0,
+    keyTail: apiKey ? `***${apiKey.slice(-4)}` : '',
+    from: from || '',
+  });
 
   if (!apiKey) {
     console.warn(
@@ -121,11 +131,9 @@ async function sendEmail({
       method: 'POST',
 
       headers: {
-        Authorization:
-          `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
 
-        'Content-Type':
-          'application/json',
+        'Content-Type': 'application/json',
       },
 
       body: JSON.stringify({
@@ -145,8 +153,7 @@ async function sendEmail({
   let result = {};
 
   try {
-    result =
-      await response.json();
+    result = await response.json();
   } catch {
     result = {};
   }
@@ -154,7 +161,11 @@ async function sendEmail({
   if (!response.ok) {
     console.error(
       'RESEND ERROR:',
-      result
+      {
+        status: response.status,
+        statusText: response.statusText,
+        ...result,
+      }
     );
 
     throw new Error(
@@ -162,6 +173,8 @@ async function sendEmail({
       `Resend failed: ${response.status}`
     );
   }
+
+  console.log('RESEND SUCCESS:', result);
 
   return {
     success: true,
