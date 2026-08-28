@@ -36,32 +36,15 @@ const NEED_MAP = {
 // ========================================
 // MAP ĐỊA ĐIỂM WEBSITE -> GOOGLE FORM
 // ========================================
-//
-// Google Form đang có đúng 3 giá trị:
-//
-// Dak Nong
-// Bao Loc
-// Đà Lạt
-//
-// Website có thể hiển thị:
-// Đắk Nông
-// TP. Bảo Lộc
-// TP. Đà Lạt
-//
-// Vì vậy phải convert trước khi gửi.
-//
 
 const EVENT_LOCATION_MAP = {
-  // Đắk Nông
   'Đắk Nông': 'Dak Nong',
   'Dak Nong': 'Dak Nong',
 
-  // Bảo Lộc
   'Bảo Lộc': 'Bao Loc',
   'TP. Bảo Lộc': 'Bao Loc',
   'Bao Loc': 'Bao Loc',
 
-  // Đà Lạt
   'Đà Lạt': 'Đà Lạt',
   'TP. Đà Lạt': 'Đà Lạt',
 };
@@ -83,6 +66,20 @@ function escapeHtml(value = '') {
 // SEND EMAIL VIA RESEND
 // ========================================
 
+function normalizeRecipients(to) {
+  const values = Array.isArray(to)
+    ? to
+    : [to];
+
+  return values
+    .flatMap((item) =>
+      String(item || '')
+        .split(/[;,]/)
+        .map((email) => email.trim())
+    )
+    .filter(Boolean);
+}
+
 async function sendEmail({
   to,
   subject,
@@ -94,13 +91,29 @@ async function sendEmail({
   const from =
     process.env.EVENT_FROM_EMAIL?.trim();
 
-  // Chỉ log kiểm tra, KHÔNG log toàn bộ API key
+  const recipients =
+    normalizeRecipients(to);
+
   console.log('RESEND CONFIG:', {
     keyPresent: Boolean(apiKey),
-    keyPrefixOk: apiKey?.startsWith('re_') || false,
-    keyLength: apiKey?.length || 0,
-    keyTail: apiKey ? `***${apiKey.slice(-4)}` : '',
-    from: from || '',
+
+    keyPrefixOk:
+      apiKey?.startsWith('re_') ||
+      false,
+
+    keyLength:
+      apiKey?.length || 0,
+
+    keyTail:
+      apiKey
+        ? `***${apiKey.slice(-4)}`
+        : '',
+
+    from:
+      from || '',
+
+    to:
+      recipients,
   });
 
   if (!apiKey) {
@@ -125,26 +138,34 @@ async function sendEmail({
     };
   }
 
+  if (!recipients.length) {
+    console.warn(
+      'Không có email người nhận hợp lệ'
+    );
+
+    return {
+      success: false,
+      skipped: true,
+    };
+  }
+
   const response = await fetch(
     'https://api.resend.com/emails',
     {
       method: 'POST',
 
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization:
+          `Bearer ${apiKey}`,
 
-        'Content-Type': 'application/json',
+        'Content-Type':
+          'application/json',
       },
 
       body: JSON.stringify({
         from,
-
-        to: Array.isArray(to)
-          ? to
-          : [to],
-
+        to: recipients,
         subject,
-
         html,
       }),
     }
@@ -153,7 +174,8 @@ async function sendEmail({
   let result = {};
 
   try {
-    result = await response.json();
+    result =
+      await response.json();
   } catch {
     result = {};
   }
@@ -162,8 +184,12 @@ async function sendEmail({
     console.error(
       'RESEND ERROR:',
       {
-        status: response.status,
-        statusText: response.statusText,
+        status:
+          response.status,
+
+        statusText:
+          response.statusText,
+
         ...result,
       }
     );
@@ -174,7 +200,10 @@ async function sendEmail({
     );
   }
 
-  console.log('RESEND SUCCESS:', result);
+  console.log(
+    'RESEND SUCCESS:',
+    result
+  );
 
   return {
     success: true,
@@ -624,35 +653,21 @@ export default async function handler(
   try {
     const {
       role = '',
-
       program = '',
-
       fullName = '',
-
       phone = '',
-
       email = '',
-
       country = '',
-
       timeframe = '',
-
       needs = [],
 
-      // Education Fair
       eventId = '',
-
       eventLocation = '',
-
       eventVenue = '',
-
       eventAddress = '',
-
       eventDate = '',
-
       eventTime = '',
 
-      // tracking
       page_url = '',
 
     } = req.body || {};
@@ -692,7 +707,6 @@ export default async function handler(
     const form =
       new URLSearchParams();
 
-    // Bạn là ai?
     if (role) {
       form.append(
         'entry.786228905',
@@ -700,7 +714,6 @@ export default async function handler(
       );
     }
 
-    // Chương trình
     if (program) {
       form.append(
         'entry.1432927249',
@@ -708,25 +721,21 @@ export default async function handler(
       );
     }
 
-    // Họ tên
     form.append(
       'entry.741405596',
       fullName.trim()
     );
 
-    // Điện thoại
     form.append(
       'entry.1415447158',
       phone.trim()
     );
 
-    // Email
     form.append(
       'entry.1045781291',
       email.trim()
     );
 
-    // Quốc gia
     if (country) {
       form.append(
         'entry.1005224062',
@@ -734,12 +743,9 @@ export default async function handler(
       );
     }
 
-    // Thời gian dự kiến
     if (
       timeframe &&
-      VALID_TIMEFRAMES.includes(
-        timeframe
-      )
+      VALID_TIMEFRAMES.includes(timeframe)
     ) {
       form.append(
         'entry.965295111',
@@ -747,7 +753,6 @@ export default async function handler(
       );
     }
 
-    // Nhu cầu
     if (Array.isArray(needs)) {
       needs.forEach((need) => {
         const googleValue =
@@ -843,10 +848,7 @@ export default async function handler(
       console.error(
         'GOOGLE FORM ERROR:',
         googleResponse.status,
-        body.substring(
-          0,
-          500
-        )
+        body.substring(0, 500)
       );
 
       return res.status(502).json({
@@ -861,17 +863,11 @@ export default async function handler(
     // EMAIL
     // =====================================
 
-    let customerEmailSent =
-      false;
+    let customerEmailSent = false;
+    let adminEmailSent = false;
 
-    let adminEmailSent =
-      false;
-
-    let customerEmailError =
-      null;
-
-    let adminEmailError =
-      null;
+    let customerEmailError = null;
+    let adminEmailError = null;
 
     // =====================================
     // EMAIL XÁC NHẬN CHO KHÁCH
@@ -897,13 +893,9 @@ export default async function handler(
                   fullName.trim(),
 
                 eventLocation,
-
                 eventVenue,
-
                 eventAddress,
-
                 eventDate,
-
                 eventTime,
               }),
           });
@@ -927,15 +919,17 @@ export default async function handler(
     // EMAIL THÔNG BÁO CHO HẰNG LƯƠNG
     // =====================================
 
-    const adminEmail =
-      process.env.EVENT_ADMIN_EMAIL;
+    const adminEmails =
+      normalizeRecipients(
+        process.env.EVENT_ADMIN_EMAIL
+      );
 
-    if (adminEmail) {
+    if (adminEmails.length) {
       try {
         const result =
           await sendEmail({
             to:
-              adminEmail,
+              adminEmails,
 
             subject:
               eventVenue
@@ -945,7 +939,6 @@ export default async function handler(
             html:
               buildAdminEmail({
                 role,
-
                 program,
 
                 fullName:
@@ -958,19 +951,13 @@ export default async function handler(
                   email.trim(),
 
                 country,
-
                 timeframe,
-
                 needs,
 
                 eventLocation,
-
                 eventVenue,
-
                 eventAddress,
-
                 eventDate,
-
                 eventTime,
 
                 page_url,
@@ -1015,11 +1002,9 @@ export default async function handler(
       success: true,
 
       customerEmailSent,
-
       adminEmailSent,
 
       customerEmailError,
-
       adminEmailError,
 
       event:
