@@ -10,7 +10,7 @@ import FAQ from '../components/FAQ.jsx';
 import BottomCTA from '../components/BottomCTA.jsx';
 import Footer from '../components/footer.jsx';
 import FloatingCTA from '../components/FloatingCTA.jsx';
-
+import CareerOrientation from '../components/CareerOrientation.jsx';
 export const route = {
   path: '/',
   title: 'Tư vấn lộ trình du học cùng Hằng Lương | Free Consultation',
@@ -28,6 +28,7 @@ export default function HomePage() {
         <WhyUs />
         <Audience />
         <Process />
+        <CareerOrientation />
         <Events />
         <Destinations />
         
