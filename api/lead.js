@@ -2,7 +2,7 @@ const GOOGLE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSfWKMT14OkabcCipsolbeeQ28sEMuJpr-8BGOvzzFLjmSD1Uw/formResponse';
 
 // ========================================
-// GOOGLE FORM OPTIONS
+// GOOGLE FORM VALUES
 // ========================================
 
 const VALID_TIMEFRAMES = [
@@ -21,18 +21,50 @@ const NEED_MAP = {
   'Học bổng': 'Học Bổng',
   'Học Bổng': 'Học Bổng',
 
-  'Hồ sơ nhập học':
-    'Hồ sơ nhập học',
+  'Hồ sơ nhập học': 'Hồ sơ nhập học',
 
   Visa: 'Visa',
 
   'Chi phí': 'Chi phí',
 
-  'Hướng nghiệp':
-    'Hướng nghiệp',
+  'Hướng nghiệp': 'Hướng nghiệp',
 
-  'Lộ trình học':
-    'Lộ trình học',
+  'Lộ trình học': 'Lộ trình học',
+};
+
+// ========================================
+// MAP ĐỊA ĐIỂM WEBSITE -> GOOGLE FORM
+// ========================================
+//
+// Google Form đang có đúng 3 giá trị:
+//
+// Dak Nong
+// Bao Loc
+// Đà Lạt
+//
+// Website có thể hiển thị:
+// Gia Nghĩa
+// TP. Bảo Lộc
+// TP. Đà Lạt
+//
+// Vì vậy phải convert trước khi gửi.
+//
+
+const EVENT_LOCATION_MAP = {
+  // Gia Nghĩa
+  'Gia Nghĩa': 'Dak Nong',
+  'TP. Gia Nghĩa': 'Dak Nong',
+  'Đắk Nông': 'Dak Nong',
+  'Dak Nong': 'Dak Nong',
+
+  // Bảo Lộc
+  'Bảo Lộc': 'Bao Loc',
+  'TP. Bảo Lộc': 'Bao Loc',
+  'Bao Loc': 'Bao Loc',
+
+  // Đà Lạt
+  'Đà Lạt': 'Đà Lạt',
+  'TP. Đà Lạt': 'Đà Lạt',
 };
 
 // ========================================
@@ -49,7 +81,7 @@ function escapeHtml(value = '') {
 }
 
 // ========================================
-// SEND EMAIL WITH RESEND
+// SEND EMAIL VIA RESEND
 // ========================================
 
 async function sendEmail({
@@ -65,7 +97,7 @@ async function sendEmail({
 
   if (!apiKey) {
     console.warn(
-      'Thiếu RESEND_API_KEY'
+      'RESEND_API_KEY chưa được cấu hình'
     );
 
     return {
@@ -76,7 +108,7 @@ async function sendEmail({
 
   if (!from) {
     console.warn(
-      'Thiếu EVENT_FROM_EMAIL'
+      'EVENT_FROM_EMAIL chưa được cấu hình'
     );
 
     return {
@@ -129,7 +161,7 @@ async function sendEmail({
 
     throw new Error(
       result?.message ||
-        `Resend failed: ${response.status}`
+      `Resend failed: ${response.status}`
     );
   }
 
@@ -140,7 +172,7 @@ async function sendEmail({
 }
 
 // ========================================
-// CUSTOMER CONFIRMATION EMAIL
+// EMAIL KHÁCH HÀNG
 // ========================================
 
 function buildCustomerEmail({
@@ -151,24 +183,6 @@ function buildCustomerEmail({
   eventDate,
   eventTime,
 }) {
-  const name =
-    escapeHtml(fullName);
-
-  const location =
-    escapeHtml(eventLocation);
-
-  const venue =
-    escapeHtml(eventVenue);
-
-  const address =
-    escapeHtml(eventAddress);
-
-  const date =
-    escapeHtml(eventDate);
-
-  const time =
-    escapeHtml(eventTime);
-
   return `
 <!DOCTYPE html>
 
@@ -183,7 +197,7 @@ function buildCustomerEmail({
   />
 
   <title>
-    Education Fair 2026
+    Xác nhận Education Fair 2026
   </title>
 </head>
 
@@ -201,10 +215,9 @@ function buildCustomerEmail({
     width="100%"
     cellspacing="0"
     cellpadding="0"
-    border="0"
     style="
-      background:#f5f5f5;
       padding:30px 15px;
+      background:#f5f5f5;
     "
   >
 
@@ -216,7 +229,6 @@ function buildCustomerEmail({
           width="100%"
           cellspacing="0"
           cellpadding="0"
-          border="0"
           style="
             max-width:620px;
             background:#ffffff;
@@ -225,16 +237,14 @@ function buildCustomerEmail({
           "
         >
 
-          <!-- HEADER -->
-
           <tr>
 
             <td
               align="center"
               style="
+                padding:32px 20px;
                 background:#dc2626;
-                padding:32px 24px;
-                color:#ffffff;
+                color:white;
               "
             >
 
@@ -242,7 +252,7 @@ function buildCustomerEmail({
                 style="
                   font-size:13px;
                   font-weight:bold;
-                  letter-spacing:1.5px;
+                  letter-spacing:1px;
                 "
               >
                 DU HỌC QUỐC TẾ HẰNG LƯƠNG
@@ -250,10 +260,9 @@ function buildCustomerEmail({
 
               <div
                 style="
-                  font-size:28px;
-                  line-height:1.25;
-                  font-weight:800;
                   margin-top:8px;
+                  font-size:28px;
+                  font-weight:800;
                 "
               >
                 EDUCATION FAIR 2026
@@ -261,8 +270,8 @@ function buildCustomerEmail({
 
               <div
                 style="
-                  font-size:15px;
                   margin-top:8px;
+                  font-size:15px;
                 "
               >
                 Xác nhận đăng ký tham gia
@@ -271,8 +280,6 @@ function buildCustomerEmail({
             </td>
 
           </tr>
-
-          <!-- BODY -->
 
           <tr>
 
@@ -284,20 +291,20 @@ function buildCustomerEmail({
 
               <p
                 style="
-                  margin-top:0;
                   font-size:17px;
+                  margin-top:0;
                 "
               >
                 Xin chào
                 <strong>
-                  ${name}
+                  ${escapeHtml(fullName)}
                 </strong>,
               </p>
 
               <p
                 style="
-                  color:#475569;
                   line-height:1.7;
+                  color:#475569;
                 "
               >
                 Bạn đã đăng ký tham gia
@@ -309,11 +316,11 @@ function buildCustomerEmail({
 
               <div
                 style="
-                  margin-top:25px;
-                  padding:24px;
-                  border-radius:15px;
+                  margin-top:24px;
+                  padding:22px;
                   border:1px solid #fecaca;
                   background:#fff7f7;
+                  border-radius:15px;
                 "
               >
 
@@ -322,99 +329,85 @@ function buildCustomerEmail({
                     color:#dc2626;
                     font-size:12px;
                     font-weight:bold;
-                    letter-spacing:1px;
                   "
                 >
                   ĐỊA ĐIỂM ĐĂNG KÝ
                 </div>
 
-                <div
+                <h2
                   style="
-                    margin-top:8px;
+                    margin:8px 0 4px;
                     font-size:22px;
-                    font-weight:800;
                   "
                 >
-                  ${location}
-                </div>
+                  ${escapeHtml(eventLocation)}
+                </h2>
 
                 <div
                   style="
-                    margin-top:6px;
                     font-size:18px;
                     font-weight:bold;
                   "
                 >
-                  ${venue}
+                  ${escapeHtml(eventVenue)}
                 </div>
 
-                <div
+                <p
                   style="
-                    margin-top:20px;
-                    color:#475569;
+                    margin-bottom:0;
                     line-height:1.9;
-                    font-size:15px;
+                    color:#475569;
                   "
                 >
 
+                  📍
                   <strong>
-                    📍 Địa chỉ:
+                    Địa chỉ:
                   </strong>
 
-                  ${address}
+                  ${escapeHtml(eventAddress)}
 
                   <br />
 
+                  📅
                   <strong>
-                    📅 Ngày:
+                    Ngày:
                   </strong>
 
-                  ${date}
+                  ${escapeHtml(eventDate)}
 
                   <br />
 
+                  🕐
                   <strong>
-                    🕐 Thời gian:
+                    Thời gian:
                   </strong>
 
-                  ${time}
+                  ${escapeHtml(eventTime)}
 
-                </div>
+                </p>
 
               </div>
 
               <p
                 style="
-                  color:#475569;
+                  margin-top:24px;
                   line-height:1.7;
-                  margin-top:25px;
+                  color:#475569;
                 "
               >
-                Vui lòng lưu lại email này
-                để tiện kiểm tra thông tin
+                Vui lòng giữ lại email này
+                để tiện đối chiếu thông tin
                 khi tham gia sự kiện.
-              </p>
-
-              <p
-                style="
-                  color:#475569;
-                  line-height:1.7;
-                "
-              >
-                Hằng Lương sẽ liên hệ với
-                bạn nếu cần bổ sung thêm
-                thông tin trước ngày diễn
-                ra Education Fair.
               </p>
 
               <div
                 style="
-                  margin-top:30px;
+                  margin-top:25px;
                   padding-top:20px;
                   border-top:1px solid #e2e8f0;
-                  font-size:13px;
                   color:#64748b;
-                  line-height:1.7;
+                  font-size:13px;
                 "
               >
 
@@ -447,29 +440,27 @@ function buildCustomerEmail({
 }
 
 // ========================================
-// ADMIN EMAIL
+// EMAIL ADMIN
 // ========================================
 
-function buildAdminEmail(data) {
-  const {
-    role,
-    program,
-    fullName,
-    phone,
-    email,
-    country,
-    timeframe,
-    needs,
+function buildAdminEmail({
+  role,
+  program,
+  fullName,
+  phone,
+  email,
+  country,
+  timeframe,
+  needs,
 
-    eventLocation,
-    eventVenue,
-    eventAddress,
-    eventDate,
-    eventTime,
+  eventLocation,
+  eventVenue,
+  eventAddress,
+  eventDate,
+  eventTime,
 
-    page_url,
-  } = data;
-
+  page_url,
+}) {
   return `
 <!DOCTYPE html>
 
@@ -501,65 +492,42 @@ function buildAdminEmail(data) {
 
   <p>
 
-    <strong>
-      Họ tên:
-    </strong>
-
+    <strong>Họ tên:</strong>
     ${escapeHtml(fullName)}
 
     <br />
 
-    <strong>
-      Điện thoại:
-    </strong>
-
+    <strong>Điện thoại:</strong>
     ${escapeHtml(phone)}
 
     <br />
 
-    <strong>
-      Email:
-    </strong>
-
+    <strong>Email:</strong>
     ${escapeHtml(email)}
 
     <br />
 
-    <strong>
-      Đối tượng:
-    </strong>
-
+    <strong>Đối tượng:</strong>
     ${escapeHtml(role || '-')}
 
     <br />
 
-    <strong>
-      Chương trình:
-    </strong>
-
+    <strong>Chương trình:</strong>
     ${escapeHtml(program || '-')}
 
     <br />
 
-    <strong>
-      Quốc gia:
-    </strong>
-
+    <strong>Quốc gia:</strong>
     ${escapeHtml(country || '-')}
 
     <br />
 
-    <strong>
-      Thời gian dự kiến:
-    </strong>
-
+    <strong>Thời gian dự kiến:</strong>
     ${escapeHtml(timeframe || '-')}
 
     <br />
 
-    <strong>
-      Cần hỗ trợ:
-    </strong>
+    <strong>Nhu cầu:</strong>
 
     ${
       Array.isArray(needs) &&
@@ -576,47 +544,32 @@ function buildAdminEmail(data) {
     eventVenue
       ? `
         <h3>
-          Thông tin Education Fair
+          Sự kiện đã đăng ký
         </h3>
 
         <p>
 
-          <strong>
-            Khu vực:
-          </strong>
-
+          <strong>Khu vực:</strong>
           ${escapeHtml(eventLocation)}
 
           <br />
 
-          <strong>
-            Địa điểm:
-          </strong>
-
+          <strong>Địa điểm:</strong>
           ${escapeHtml(eventVenue)}
 
           <br />
 
-          <strong>
-            Địa chỉ:
-          </strong>
-
+          <strong>Địa chỉ:</strong>
           ${escapeHtml(eventAddress)}
 
           <br />
 
-          <strong>
-            Ngày:
-          </strong>
-
+          <strong>Ngày:</strong>
           ${escapeHtml(eventDate)}
 
           <br />
 
-          <strong>
-            Thời gian:
-          </strong>
-
+          <strong>Thời gian:</strong>
           ${escapeHtml(eventTime)}
 
         </p>
@@ -628,13 +581,8 @@ function buildAdminEmail(data) {
     page_url
       ? `
         <p>
-
-          <strong>
-            Landing page:
-          </strong>
-
+          <strong>Landing page:</strong>
           ${escapeHtml(page_url)}
-
         </p>
       `
       : ''
@@ -647,42 +595,40 @@ function buildAdminEmail(data) {
 }
 
 // ========================================
-// API HANDLER
+// HANDLER
 // ========================================
 
 export default async function handler(
   req,
   res
 ) {
-
   if (req.method !== 'POST') {
-
     return res.status(405).json({
       success: false,
       message:
         'Method not allowed',
     });
-
   }
 
   try {
-
     const {
-
       role = '',
+
       program = '',
 
       fullName = '',
+
       phone = '',
+
       email = '',
 
       country = '',
+
       timeframe = '',
 
       needs = [],
 
-      // EDUCATION FAIR
-
+      // Education Fair
       eventId = '',
 
       eventLocation = '',
@@ -695,157 +641,151 @@ export default async function handler(
 
       eventTime = '',
 
-      // TRACKING
-
+      // tracking
       page_url = '',
 
     } = req.body || {};
 
-    // ====================================
+    // =====================================
     // VALIDATION
-    // ====================================
+    // =====================================
 
     if (!fullName.trim()) {
-
       return res.status(400).json({
         success: false,
-
         message:
           'Thiếu họ tên',
       });
-
     }
 
     if (!phone.trim()) {
-
       return res.status(400).json({
         success: false,
-
         message:
           'Thiếu số điện thoại',
       });
-
     }
 
     if (!email.trim()) {
-
       return res.status(400).json({
         success: false,
-
         message:
-          'Vui lòng nhập email.',
+          'Vui lòng nhập email',
       });
-
     }
 
-    // ====================================
+    // =====================================
     // GOOGLE FORM
-    // ====================================
+    // =====================================
 
     const form =
       new URLSearchParams();
 
     // Bạn là ai?
     if (role) {
-
       form.append(
         'entry.786228905',
         role
       );
-
     }
 
     // Chương trình
     if (program) {
-
       form.append(
         'entry.1432927249',
         program
       );
-
     }
 
     // Họ tên
-
     form.append(
       'entry.741405596',
       fullName.trim()
     );
 
     // Điện thoại
-
     form.append(
       'entry.1415447158',
       phone.trim()
     );
 
     // Email
-
     form.append(
       'entry.1045781291',
       email.trim()
     );
 
     // Quốc gia
-
     if (country) {
-
       form.append(
         'entry.1005224062',
         country
       );
-
     }
 
-    // Thời gian
-
+    // Thời gian dự kiến
     if (
       timeframe &&
       VALID_TIMEFRAMES.includes(
         timeframe
       )
     ) {
-
       form.append(
         'entry.965295111',
         timeframe
       );
-
     }
 
     // Nhu cầu
-
     if (Array.isArray(needs)) {
-
       needs.forEach((need) => {
-
         const googleValue =
           NEED_MAP[need];
 
         if (googleValue) {
-
           form.append(
             'entry.2120121799',
             googleValue
           );
-
         }
-
       });
-
     }
 
-    // ====================================
-    // ĐỊA ĐIỂM EDUCATION FAIR
-    // ====================================
+    // =====================================
+    // EDUCATION FAIR LOCATION
+    // =====================================
 
     if (eventLocation) {
+      const googleEventLocation =
+        EVENT_LOCATION_MAP[
+          eventLocation.trim()
+        ];
+
+      if (!googleEventLocation) {
+        console.error(
+          'UNKNOWN EVENT LOCATION:',
+          eventLocation
+        );
+
+        return res.status(400).json({
+          success: false,
+
+          message:
+            `Địa điểm "${eventLocation}" chưa được map với Google Form.`,
+        });
+      }
 
       form.append(
         'entry.793835857',
-        eventLocation
+        googleEventLocation
       );
 
+      console.log(
+        'EVENT LOCATION MAP:',
+        eventLocation,
+        '=>',
+        googleEventLocation
+      );
     }
 
     console.log(
@@ -853,9 +793,9 @@ export default async function handler(
       form.toString()
     );
 
-    // ====================================
-    // SEND GOOGLE FORM
-    // ====================================
+    // =====================================
+    // SUBMIT GOOGLE FORM
+    // =====================================
 
     const googleResponse =
       await fetch(
@@ -864,10 +804,8 @@ export default async function handler(
           method: 'POST',
 
           headers: {
-
             'Content-Type':
               'application/x-www-form-urlencoded;charset=UTF-8',
-
           },
 
           body:
@@ -888,7 +826,6 @@ export default async function handler(
         googleResponse.status
       )
     ) {
-
       const body =
         await googleResponse.text();
 
@@ -902,19 +839,16 @@ export default async function handler(
       );
 
       return res.status(502).json({
-
         success: false,
 
         message:
           `Google Form failed: ${googleResponse.status}`,
-
       });
-
     }
 
-    // ====================================
-    // SEND EMAIL
-    // ====================================
+    // =====================================
+    // EMAIL
+    // =====================================
 
     let customerEmailSent =
       false;
@@ -928,22 +862,18 @@ export default async function handler(
     let adminEmailError =
       null;
 
-    // ====================================
-    // CUSTOMER CONFIRMATION EMAIL
-    // ====================================
+    // =====================================
+    // EMAIL XÁC NHẬN CHO KHÁCH
+    // =====================================
 
     if (
       eventId &&
       eventVenue &&
-      eventDate &&
-      email
+      eventDate
     ) {
-
       try {
-
-        const emailResult =
+        const result =
           await sendEmail({
-
             to:
               email.trim(),
 
@@ -952,7 +882,6 @@ export default async function handler(
 
             html:
               buildCustomerEmail({
-
                 fullName:
                   fullName.trim(),
 
@@ -965,16 +894,13 @@ export default async function handler(
                 eventDate,
 
                 eventTime,
-
               }),
-
           });
 
         customerEmailSent =
-          emailResult.success === true;
+          result.success === true;
 
       } catch (error) {
-
         console.error(
           'CUSTOMER EMAIL ERROR:',
           error
@@ -982,27 +908,21 @@ export default async function handler(
 
         customerEmailError =
           error?.message ||
-          'Email error';
-
+          'Không gửi được email khách';
       }
-
     }
 
-    // ====================================
-    // ADMIN EMAIL
-    // ====================================
+    // =====================================
+    // EMAIL THÔNG BÁO CHO HẰNG LƯƠNG
+    // =====================================
 
     const adminEmail =
-      process.env
-        .EVENT_ADMIN_EMAIL;
+      process.env.EVENT_ADMIN_EMAIL;
 
     if (adminEmail) {
-
       try {
-
-        const emailResult =
+        const result =
           await sendEmail({
-
             to:
               adminEmail,
 
@@ -1013,7 +933,6 @@ export default async function handler(
 
             html:
               buildAdminEmail({
-
                 role,
 
                 program,
@@ -1044,16 +963,13 @@ export default async function handler(
                 eventTime,
 
                 page_url,
-
               }),
-
           });
 
         adminEmailSent =
-          emailResult.success === true;
+          result.success === true;
 
       } catch (error) {
-
         console.error(
           'ADMIN EMAIL ERROR:',
           error
@@ -1061,15 +977,13 @@ export default async function handler(
 
         adminEmailError =
           error?.message ||
-          'Email error';
-
+          'Không gửi được email admin';
       }
-
     }
 
-    // ====================================
+    // =====================================
     // SUCCESS
-    // ====================================
+    // =====================================
 
     console.log(
       'LEAD SUCCESS:',
@@ -1077,15 +991,16 @@ export default async function handler(
         fullName,
         phone,
         email,
+
         eventLocation,
         eventVenue,
+
         customerEmailSent,
         adminEmailSent,
       }
     );
 
     return res.status(200).json({
-
       success: true,
 
       customerEmailSent,
@@ -1099,7 +1014,6 @@ export default async function handler(
       event:
         eventId
           ? {
-
               id:
                 eventId,
 
@@ -1117,29 +1031,22 @@ export default async function handler(
 
               time:
                 eventTime,
-
             }
           : null,
-
     });
 
   } catch (error) {
-
     console.error(
       'LEAD API ERROR:',
       error
     );
 
     return res.status(500).json({
-
       success: false,
 
       message:
         error?.message ||
         'Internal server error',
-
     });
-
   }
-
 }
