@@ -54,10 +54,10 @@ export default function Events() {
       date: '24/09/2026',
       day: '24',
       month: 'THÁNG 9',
-      location: 'Gia Nghĩa',
+      location: 'Đắk Nông',
       venue: 'Robin Hotel',
       address:
-        '77, Đường 23 Tháng 3, Tổ 1, Nam Gia Nghĩa, Lâm Đồng 65106',
+        '77, Đường 23 Tháng 3, Tổ 1, Nam Gia Nghĩa, Lâm Đồng',
       time: '14:00 – 18:00'
     },
     {

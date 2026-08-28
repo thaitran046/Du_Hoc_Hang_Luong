@@ -43,7 +43,7 @@ const NEED_MAP = {
 // Đà Lạt
 //
 // Website có thể hiển thị:
-// Gia Nghĩa
+// Đắk Nông
 // TP. Bảo Lộc
 // TP. Đà Lạt
 //
@@ -51,9 +51,7 @@ const NEED_MAP = {
 //
 
 const EVENT_LOCATION_MAP = {
-  // Gia Nghĩa
-  'Gia Nghĩa': 'Dak Nong',
-  'TP. Gia Nghĩa': 'Dak Nong',
+  // Đắk Nông
   'Đắk Nông': 'Dak Nong',
   'Dak Nong': 'Dak Nong',
 
