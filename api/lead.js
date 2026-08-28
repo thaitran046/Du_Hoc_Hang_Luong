@@ -2,6 +2,43 @@ const GOOGLE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSfWKMT14OkabcCipsolbeeQ28sEMuJpr-8BGOvzzFLjmSD1Uw/formResponse';
 
 // Các giá trị THẬT đang có trên Google Form
+
+
+const [selectedEvent, setSelectedEvent] = React.useState(null);
+
+React.useEffect(() => {
+  // Lấy sự kiện khách đã chọn trước đó
+  const savedEvent = localStorage.getItem('selectedFairEvent');
+
+  if (savedEvent) {
+    try {
+      setSelectedEvent(JSON.parse(savedEvent));
+    } catch (error) {
+      console.error('Không đọc được sự kiện đã chọn:', error);
+    }
+  }
+
+  // Nhận sự kiện khi khách bấm card
+  const handleEventSelected = (event) => {
+    setSelectedEvent(event.detail);
+  };
+
+  window.addEventListener(
+    'fair-event-selected',
+    handleEventSelected
+  );
+
+  return () => {
+    window.removeEventListener(
+      'fair-event-selected',
+      handleEventSelected
+    );
+  };
+}, []);
+
+
+
+
 const VALID_TIMEFRAMES = [
   'Trong 3 tháng tới',
   '3 - 6 tháng',
