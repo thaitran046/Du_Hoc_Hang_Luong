@@ -117,10 +117,10 @@ export default function Footer() {
                 <div>
                   <p className="text-xs text-slate-500">Email tiếp nhận</p>
                   <a
-                    href="mailto:info@duhochangluong.edu.vn"
+                    href="mailto:admin@duhochangluong.edu.vn"
                     className="mt-0.5 inline-block break-all font-semibold text-white transition hover:text-[#ef1b24]"
                   >
-                    info@duhochangluong.edu.vn
+                    admin@duhochangluong.edu.vn
                   </a>
                 </div>
               </li>
