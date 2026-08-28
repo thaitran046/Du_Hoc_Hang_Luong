@@ -1,71 +1,259 @@
 import React from 'react';
-import { Calendar, Users, MapPin, CheckCircle2 } from 'lucide-react';
+import {
+  Calendar,
+  MapPin,
+  Clock3,
+  CheckCircle2,
+  ArrowRight
+} from 'lucide-react';
 
 export default function Events() {
   const benefits = [
-    { title: 'Thấu hiểu bản thân', desc: 'Xác định xu hướng nghề nghiệp và ngành học phù hợp.', icon: '🧠' },
-    { title: 'Lộ trình rõ ràng', desc: 'Biết rõ nên học gì, ở đâu và chuẩn bị từ khi nào.', icon: '📍' },
-    { title: 'Nắm chắc chi phí', desc: 'Cái nhìn thực tế về học phí, sinh hoạt phí và tài chính.', icon: '💰' },
-    { title: 'Săn học bổng', icon: '🎓', desc: 'Tư vấn các gói học bổng phù hợp nhất.' },
-    { title: 'Gặp gỡ chuyên gia', icon: '🤝', desc: 'Trao đổi trực tiếp thay vì tự tìm kiếm thông tin lẻ tẻ.' },
-    { title: 'An tâm đầu tư', icon: '🛡️', desc: 'Giúp phụ huynh hiểu rõ môi trường và cơ hội cho con.' }
+    {
+      title: 'Thấu hiểu bản thân',
+      desc: 'Xác định xu hướng nghề nghiệp và ngành học phù hợp.',
+      icon: '🧠'
+    },
+    {
+      title: 'Lộ trình rõ ràng',
+      desc: 'Biết rõ nên học gì, ở đâu và chuẩn bị từ khi nào.',
+      icon: '📍'
+    },
+    {
+      title: 'Nắm chắc chi phí',
+      desc: 'Cái nhìn thực tế về học phí, sinh hoạt phí và tài chính.',
+      icon: '💰'
+    },
+    {
+      title: 'Săn học bổng',
+      icon: '🎓',
+      desc: 'Tư vấn các gói học bổng phù hợp nhất.'
+    },
+    {
+      title: 'Gặp gỡ chuyên gia',
+      icon: '🤝',
+      desc: 'Trao đổi trực tiếp thay vì tự tìm kiếm thông tin lẻ tẻ.'
+    },
+    {
+      title: 'An tâm đầu tư',
+      icon: '🛡️',
+      desc: 'Giúp phụ huynh hiểu rõ môi trường và cơ hội cho con.'
+    }
+  ];
+
+  const fairEvents = [
+    {
+      date: '24/09/2026',
+      day: '24',
+      month: 'THÁNG 9',
+      location: 'Đắk Nông',
+      venue: 'Robin Hotel',
+      address: '77, Đường 23 Tháng 3, Tổ 1, Nam Gia Nghĩa, Lâm Đồng 65106',
+      time: '14:00 – 18:00'
+    },
+    {
+      date: '26/09/2026',
+      day: '26',
+      month: 'THÁNG 9',
+      location: 'TP. Bảo Lộc',
+      venue: 'Phạm Garden Coffee',
+      address:
+        '39 Nguyễn Bỉnh Khiêm, Phường 2, Bảo Lộc, Lâm Đồng',
+      time: '08:30 – 12:00'
+    },
+    {
+      date: '27/09/2026',
+      day: '27',
+      month: 'THÁNG 9',
+      location: 'TP. Đà Lạt',
+      venue: 'Nesta Valley Hotel',
+      address:
+        '94 Đường Bùi Thị Xuân, Xuân Hương - Đà Lạt, Lâm Đồng',
+      time: '13:00 – 17:00'
+    }
   ];
 
   return (
-    <section id="events" className="py-20 bg-white">
+    <section id="events" className="bg-white py-20">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row gap-12 items-center">
+
+        {/* HEADER */}
+        <div className="mx-auto mb-14 max-w-3xl text-center">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.25em] text-brand-red">
+            Education Fair 2026
+          </p>
+
+          <h2 className="text-3xl font-extrabold text-slate-900 md:text-4xl">
+            SỰ KIỆN DU HỌC & HƯỚNG NGHIỆP
+          </h2>
+
+          <div className="mx-auto mt-5 h-1.5 w-20 rounded-full bg-brand-red" />
+
+          <p className="mt-5 text-lg leading-relaxed text-slate-600">
+            Gặp gỡ chuyên gia – Khám phá nghề nghiệp – Xây dựng lộ trình
+            học tập phù hợp nhất.
+          </p>
+        </div>
+
+        {/* LỊCH FAIR */}
+        <div className="mb-16 grid gap-6 md:grid-cols-3">
+          {fairEvents.map((event) => (
+            <div
+              key={event.location}
+              className="
+                group overflow-hidden rounded-3xl
+                border border-slate-100 bg-white
+                shadow-lg transition duration-300
+                hover:-translate-y-2 hover:shadow-2xl
+              "
+            >
+              <div className="flex items-center gap-4 bg-brand-red p-6 text-white">
+                <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl bg-white text-brand-red">
+                  <span className="text-3xl font-extrabold">
+                    {event.day}
+                  </span>
+                  <span className="text-[10px] font-bold">
+                    {event.month}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium opacity-80">
+                    World Study & Career Fair
+                  </p>
+
+                  <h3 className="mt-1 text-xl font-extrabold">
+                    {event.location}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h4 className="mb-4 text-lg font-bold text-slate-900">
+                  {event.venue}
+                </h4>
+
+                <div className="space-y-4 text-sm text-slate-600">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-brand-red" />
+
+                    <span className="leading-6">
+                      {event.address}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-5 w-5 shrink-0 text-brand-red" />
+
+                    <span>{event.date}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Clock3 className="h-5 w-5 shrink-0 text-brand-red" />
+
+                    <span>{event.time}</span>
+                  </div>
+                </div>
+
+                <a
+                  href="#registration-form"
+                  className="
+                    mt-6 inline-flex w-full items-center
+                    justify-center gap-2 rounded-xl
+                    bg-brand-red px-5 py-3
+                    font-bold text-white
+                    transition hover:bg-red-700
+                  "
+                >
+                  ĐĂNG KÝ THAM GIA
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* GIỚI THIỆU + BENEFITS */}
+        <div className="flex flex-col items-center gap-12 lg:flex-row">
+
+          {/* EVENT INTRO */}
           <div className="flex-1">
-            <div className="bg-slate-50 p-8 md:p-12 rounded-[2rem] border border-slate-100 relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-6">
-                 <Calendar className="w-16 h-16 text-brand-blue opacity-5" />
-               </div>
-               
-               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
-                 SỰ KIỆN DU HỌC & HƯỚNG NGHIỆP
-               </h2>
-               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                 Gặp gỡ chuyên gia – Khám phá nghề nghiệp – Xây dựng lộ trình học tập phù hợp nhất.
-               </p>
+            <div className="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-slate-50 p-8 md:p-12">
 
-               <ul className="space-y-4 mb-10">
-                 {[
-                   'Hướng nghiệp miễn phí',
-                   'Phân tích xu hướng ngành nghề',
-                   'Tư vấn chọn quốc gia du học',
-                   'Săn học bổng trực tiếp',
-                   'Gặp gỡ đại diện trường quốc tế',
-                   'Tư vấn chuyên sâu cho phụ huynh',
-                   'Giải đáp thắc mắc 1-1'
-                 ].map(item => (
-                   <li key={item} className="flex items-center space-x-3 text-slate-700 font-medium">
-                     <CheckCircle2 className="w-5 h-5 text-green-500" />
-                     <span>{item}</span>
-                   </li>
-                 ))}
-               </ul>
+              <div className="absolute right-0 top-0 p-6">
+                <Calendar className="h-16 w-16 text-brand-red opacity-5" />
+              </div>
 
-               <a href="#registration-form" className="w-full md:w-auto inline-flex items-center justify-center px-10 py-4 bg-brand-blue text-white rounded-xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-700 transition-all">
-                 ĐĂNG KÝ THAM GIA MIỄN PHÍ
-               </a>
+              <h3 className="mb-6 text-2xl font-extrabold text-slate-900 md:text-3xl">
+                TẠI EDUCATION FAIR, BẠN CÓ THỂ
+              </h3>
+
+              <ul className="mb-10 space-y-4">
+                {[
+                  'Hướng nghiệp miễn phí',
+                  'Phân tích xu hướng ngành nghề',
+                  'Tư vấn chọn quốc gia du học',
+                  'Săn học bổng trực tiếp',
+                  'Gặp gỡ đại diện trường quốc tế',
+                  'Tư vấn chuyên sâu cho phụ huynh',
+                  'Giải đáp thắc mắc 1-1'
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-center space-x-3 font-medium text-slate-700"
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="#registration-form"
+                className="
+                  inline-flex w-full items-center justify-center
+                  rounded-xl bg-brand-red px-10 py-4
+                  font-bold text-white shadow-lg
+                  shadow-red-500/20 transition-all
+                  hover:bg-red-700 md:w-auto
+                "
+              >
+                ĐĂNG KÝ THAM GIA MIỄN PHÍ
+              </a>
             </div>
           </div>
 
+          {/* BENEFITS */}
           <div className="flex-1">
-            <div className="text-center lg:text-left mb-10">
-              <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">BẠN SẼ NHẬN ĐƯỢC GÌ?</h3>
-              <div className="h-1 w-20 bg-brand-red mx-auto lg:mx-0 rounded-full" />
+            <div className="mb-10 text-center lg:text-left">
+              <h3 className="mb-2 text-2xl font-extrabold text-slate-900 md:text-3xl">
+                BẠN SẼ NHẬN ĐƯỢC GÌ?
+              </h3>
+
+              <div className="mx-auto h-1 w-20 rounded-full bg-brand-red lg:mx-0" />
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-6">
-              {benefits.map((item, idx) => (
-                <div key={idx} className="flex space-x-4">
-                  <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-2xl flex-shrink-0">
+            <div className="grid gap-6 sm:grid-cols-2">
+              {benefits.map((item) => (
+                <div
+                  key={item.title}
+                  className="
+                    flex space-x-4 rounded-2xl
+                    border border-slate-100 bg-white
+                    p-4 transition
+                    hover:border-red-100 hover:shadow-md
+                  "
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-2xl">
                     {item.icon}
                   </div>
+
                   <div>
-                    <h4 className="font-bold text-slate-900 mb-1">{item.title}</h4>
-                    <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
+                    <h4 className="mb-1 font-bold text-slate-900">
+                      {item.title}
+                    </h4>
+
+                    <p className="text-xs leading-relaxed text-slate-500 md:text-sm">
                       {item.desc}
                     </p>
                   </div>
