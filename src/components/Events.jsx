@@ -48,7 +48,7 @@ export default function Events() {
       month: 'THÁNG 9',
       location: 'Đắk Nông',
       venue: 'Robin Hotel',
-      address: '77, Đường 23 Tháng 3, Tổ 1, Nam Gia Nghĩa, Lâm Đồng 65106',
+      address: '77, Đường 23 Tháng 3, Tổ 1, Nam Gia Nghĩa, Lâm Đồng',
       time: '14:00 – 18:00'
     },
     {
