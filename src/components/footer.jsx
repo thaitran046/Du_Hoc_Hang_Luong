@@ -58,7 +58,7 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center">
           <a href="/" aria-label="Du học Hằng Lương">
             <img
-              src="/logo Hằng Lương slogan chữ trắng 2025.png"
+              src="/Logo Hằng Lương slogan chữ trắng 2025.png"
               alt="Du học Hằng Lương"
               className="h-auto w-[240px] max-w-full object-contain md:w-[300px] transition-transform duration-300 hover:scale-105"
             />
