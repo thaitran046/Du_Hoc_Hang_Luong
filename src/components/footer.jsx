@@ -54,18 +54,25 @@ export default function Footer() {
   return (
     <footer className="border-t-4 border-[#ef1b24] bg-slate-950 text-white">
       <div className="container mx-auto px-4 py-14 md:py-16">
+
         {/* LOGO & BRAND DESCRIPTION */}
         <div className="flex flex-col items-center text-center">
-          <a href="/" aria-label="Du học Hằng Lương">
+          <a
+            href="/"
+            aria-label="Du học Hằng Lương"
+            className="inline-flex items-center justify-center"
+          >
             <img
-              src="/Logo Hằng Lương slogan chữ trắng 2025.png"
+              src="/hang-luong-logo-trang.png"
               alt="Du học Hằng Lương"
-              className="h-auto w-[240px] max-w-full object-contain md:w-[300px] transition-transform duration-300 hover:scale-105"
+              className="h-auto w-[280px] max-w-full object-contain md:w-[360px] transition-transform duration-300 hover:scale-105"
             />
           </a>
 
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-400 md:text-base">
-            Đại diện tuyển sinh chính thức của hàng trăm trường Đại học, Cao đẳng uy tín toàn cầu. Đồng hành cùng học sinh và phụ huynh xây dựng lộ trình du học minh bạch và hiệu quả.
+          <p className="mt-5 max-w-2xl text-sm leading-6 text-slate-400 md:text-base">
+            Đại diện tuyển sinh chính thức của hàng trăm trường Đại học,
+            Cao đẳng uy tín toàn cầu. Đồng hành cùng học sinh và phụ huynh
+            xây dựng lộ trình du học minh bạch và hiệu quả.
           </p>
 
           {/* MẠNG XÃ HỘI */}
@@ -78,7 +85,7 @@ export default function Footer() {
                 rel="noreferrer"
                 aria-label={name}
                 title={name}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-[#ef1b24] hover:bg-[#ef1b24] hover:text-white shadow-md"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-[#ef1b24] hover:bg-[#ef1b24] hover:text-white"
               >
                 <Icon className="h-4 w-4" />
               </a>
@@ -86,9 +93,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* BỐ CỤC 4 CỘT LỚN (KHẮC PHỤC KHOẢNG TRỐNG) */}
+        {/* 4 CỘT */}
         <div className="mt-12 grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-          {/* CỘT 1: LIÊN HỆ */}
+
+          {/* CỘT 1 */}
           <div>
             <h4 className="mb-5 text-base font-bold uppercase tracking-wider text-[#ef1b24]">
               Thông tin liên hệ
@@ -96,11 +104,15 @@ export default function Footer() {
 
             <ul className="space-y-4 text-sm text-slate-400">
               <li className="flex items-start gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
                   <Phone className="h-4 w-4 text-[#ef1b24]" />
                 </span>
+
                 <div>
-                  <p className="text-xs text-slate-500">Hotline tư vấn</p>
+                  <p className="text-xs text-slate-500">
+                    Hotline tư vấn
+                  </p>
+
                   <a
                     href={`tel:${phoneHref}`}
                     className="mt-0.5 inline-block font-semibold text-white transition hover:text-[#ef1b24]"
@@ -111,11 +123,15 @@ export default function Footer() {
               </li>
 
               <li className="flex items-start gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
                   <Send className="h-4 w-4 text-[#ef1b24]" />
                 </span>
+
                 <div>
-                  <p className="text-xs text-slate-500">Email tiếp nhận</p>
+                  <p className="text-xs text-slate-500">
+                    Email tiếp nhận
+                  </p>
+
                   <a
                     href="mailto:admin@duhochangluong.edu.vn"
                     className="mt-0.5 inline-block break-all font-semibold text-white transition hover:text-[#ef1b24]"
@@ -126,11 +142,15 @@ export default function Footer() {
               </li>
 
               <li className="flex items-start gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
                   <Clock className="h-4 w-4 text-[#ef1b24]" />
                 </span>
+
                 <div>
-                  <p className="text-xs text-slate-500">Giờ làm việc</p>
+                  <p className="text-xs text-slate-500">
+                    Giờ làm việc
+                  </p>
+
                   <p className="mt-0.5 font-medium text-slate-300">
                     Thứ 2 - Thứ 7: 8:00 - 17:00
                   </p>
@@ -139,7 +159,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* CỘT 2: HỆ THỐNG VĂN PHÒNG */}
+          {/* CỘT 2 */}
           <div>
             <h4 className="mb-5 text-base font-bold uppercase tracking-wider text-[#ef1b24]">
               Hệ thống văn phòng
@@ -148,39 +168,54 @@ export default function Footer() {
             <ul className="space-y-4 text-sm text-slate-400">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-1 h-5 w-5 shrink-0 text-[#ef1b24]" />
+
                 <div>
-                  <strong className="text-white block">Trụ sở TP. Hồ Chí Minh</strong>
+                  <strong className="block text-white">
+                    Trụ sở TP. Hồ Chí Minh
+                  </strong>
+
                   <a
                     href="https://maps.app.goo.gl/JdrYcGbxrxJirLxk6"
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 text-slate-400 hover:text-white hover:underline transition-colors"
+                    className="mt-1 inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-white hover:underline"
                   >
-                    <span>799 Đ. Hồng Bàng, Bình Tây, Hồ Chí Minh, Vietnam</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <span>
+                      799 Đ. Hồng Bàng, Bình Tây, Hồ Chí Minh, Vietnam
+                    </span>
+
+                    <ExternalLink className="h-3 w-3 text-slate-500" />
                   </a>
                 </div>
               </li>
 
               <li className="flex items-start gap-3">
                 <MapPin className="mt-1 h-5 w-5 shrink-0 text-[#ef1b24]" />
+
                 <div>
-                  <strong className="text-white block">Văn phòng Đà Lạt</strong>
+                  <strong className="block text-white">
+                    Văn phòng Đà Lạt
+                  </strong>
+
                   <a
                     href="https://maps.app.goo.gl/ukhrnGcwEkGMbVga7"
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 text-slate-400 hover:text-white hover:underline transition-colors"
+                    className="mt-1 inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-white hover:underline"
                   >
-                    <span>Số 16 Đoàn Thị Điểm, Phường Xuân Hương, TP.Đà Lạt, Tỉnh Lâm Đồng</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <span>
+                      Số 16 Đoàn Thị Điểm, Phường Xuân Hương,
+                      TP. Đà Lạt, Tỉnh Lâm Đồng
+                    </span>
+
+                    <ExternalLink className="h-3 w-3 text-slate-500" />
                   </a>
                 </div>
               </li>
             </ul>
           </div>
 
-          {/* CỘT 3: THỊ TRƯỜNG DU HỌC */}
+          {/* CỘT 3 */}
           <div>
             <h4 className="mb-5 text-base font-bold uppercase tracking-wider text-[#ef1b24]">
               Thị trường du học
@@ -201,7 +236,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* CỘT 4: DỊCH VỤ HỖ TRỢ */}
+          {/* CỘT 4 */}
           <div>
             <h4 className="mb-5 text-base font-bold uppercase tracking-wider text-[#ef1b24]">
               Dịch vụ du học
@@ -223,14 +258,24 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* COPYRIGHT & LINKS */}
-        <div className="mt-12 border-t border-white/10 pt-6 flex flex-col items-center justify-between gap-4 md:flex-row text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Du học Hằng Lương. All rights reserved.</p>
+        {/* COPYRIGHT */}
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-slate-500 md:flex-row">
+          <p>
+            © {new Date().getFullYear()} Du học Hằng Lương. All rights reserved.
+          </p>
+
           <div className="flex gap-6">
-            <a href="#" className="hover:text-slate-300 transition-colors">
+            <a
+              href="#"
+              className="transition-colors hover:text-slate-300"
+            >
               Chính sách bảo mật
             </a>
-            <a href="#" className="hover:text-slate-300 transition-colors">
+
+            <a
+              href="#"
+              className="transition-colors hover:text-slate-300"
+            >
               Điều khoản sử dụng
             </a>
           </div>
