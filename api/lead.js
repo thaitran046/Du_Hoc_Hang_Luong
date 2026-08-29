@@ -85,8 +85,12 @@ async function sendEmail({
   subject,
   html,
 }) {
-  const apiKey =
-    process.env.RESEND_API_KEY?.trim();
+const apiKey = (process.env.RESEND_API_KEY || '')
+  .trim()
+  .replace(/^RESEND_API_KEY=/i, '')
+  .replace(/^Bearer\s+/i, '')
+  .replace(/^["']|["']$/g, '')
+  .replace(/\s+/g, '');
 
   const from =
     process.env.EVENT_FROM_EMAIL?.trim();
