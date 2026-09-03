@@ -4,6 +4,10 @@ import './styles/global.css'
 import HomePage from './routes/index.jsx'
 import ThankYouPage from './routes/cam-on.jsx'
 import { initTracking } from './lib/tracking.js'
+import { inject } from '@vercel/analytics' // 1. Thêm dòng này
+
+inject() // 2. Thêm dòng này để kích hoạt tracking
+
 
 initTracking()
 
