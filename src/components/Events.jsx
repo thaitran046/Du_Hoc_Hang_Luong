@@ -29,7 +29,7 @@ export const FAIR_EVENTS = [
     address:
       '77, Đường 23 Tháng 3, Tổ 1, Nam Gia Nghĩa, Lâm Đồng 65106',
 
-    time: '14:00 – 18:00',
+    time: '13:00 – 17:00',
   },
 
   {
@@ -48,7 +48,7 @@ export const FAIR_EVENTS = [
     address:
       '39 Nguyễn Bỉnh Khiêm, Phường 2, Bảo Lộc, Lâm Đồng',
 
-    time: '08:30 – 12:00',
+    time: '13:00 – 17:00',
   },
 
   {

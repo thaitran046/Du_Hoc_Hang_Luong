@@ -31,7 +31,7 @@ export default function Nav() {
             <span>📍 799 Đ. Hồng Bàng, Bình Tây, Hồ Chí Minh, Vietnam</span>
           </div>
           <div className="flex items-center gap-4 text-xs">
-            <span>⏰ T3 - T7: 8:00 - 17:00</span>
+            <span>⏰ T2 - T7: 8:00 - 17:00</span>
           </div>
         </div>
       </div>
