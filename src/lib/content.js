@@ -71,23 +71,24 @@ export const content = {
   ],
   process: [
     { title: 'Đăng ký thông tin', desc: 'Điền form trong khoảng 1 phút.' },
-    { title: 'Chuyên viên liên hệ', desc: 'Hằng Lương liên hệ tìm hiểu nhu cầu.' },
+    { title: 'Chuyên gia liên hệ', desc: 'Hằng Lương liên hệ tìm hiểu nhu cầu.' },
     { title: 'Xây dựng lộ trình', desc: 'Đề xuất quốc gia, ngành, trường và chi phí.' },
     { title: 'Hỗ trợ hồ sơ', desc: 'Đồng hành chuẩn bị hồ sơ và các bước tiếp theo.' }
   ],
   destinations: [
-    { name: 'Úc', flag: '🇦🇺', desc: 'Chất lượng giáo dục hàng đầu, cơ hội định cư cao.' },
-    { name: 'Anh', flag: '🇬🇧', desc: 'Cái nôi tri thức thế giới, thời gian học ngắn.' },
-    { name: 'Mỹ', flag: '🇺🇸', desc: 'Hệ thống giáo dục đa dạng, học bổng giá trị lớn.' },
-    { name: 'Canada', flag: '🇨🇦', desc: 'Môi trường an toàn, chính sách visa ưu tiên.' },
-    { name: 'New Zealand', flag: '🇳🇿', desc: 'Cảnh quan tuyệt đẹp, giáo dục thực tiễn.' },
-    { name: 'Singapore', flag: '🇸🇬', desc: 'Gần Việt Nam, bằng cấp quốc tế, chi phí hợp lý.' },
-    { name: 'Châu Âu', flag: '🇪🇺', desc: 'Văn hóa đa dạng, nhiều chương trình miễn học phí.' }
+    { name: 'Úc', flag: '🇦🇺', desc: 'Chất lượng giáo dục hàng đầu, cơ hội định cư cao.', link: 'https://www.duhochangluong.edu.vn/du-hoc-uc-hl190.html' },
+    { name: 'Anh', flag: '🇬🇧', desc: 'Cái nôi tri thức thế giới, thời gian học ngắn.', link: 'https://www.duhochangluong.edu.vn/anh-quoc-uk-hl649.html' },
+    { name: 'Mỹ', flag: '🇺🇸', desc: 'Hệ thống giáo dục đa dạng, học bổng giá trị lớn.', link: 'https://www.duhochangluong.edu.vn/du-hoc-my-hl22.html' },
+    { name: 'Canada', flag: '🇨🇦', desc: 'Môi trường an toàn, chính sách visa ưu tiên.', link: 'https://www.duhochangluong.edu.vn/du-hoc-canada-hl238.html' },
+    { name: 'Malaysia', flag: '🇲🇾', desc: 'Học phí tiết kiệm, nhận bằng quốc tế.', link: 'https://www.duhochangluong.edu.vn/du-hoc-malaysia-hl19.html' },
+    { name: 'New Zealand', flag: '🇳🇿', desc: 'Cảnh quan tuyệt đẹp, giáo dục thực tiễn.', link: 'https://www.duhochangluong.edu.vn/du-hoc-new-zealand-hl269.html' },
+    { name: 'Singapore', flag: '🇸🇬', desc: 'Gần Việt Nam, bằng cấp quốc tế, chi phí hợp lý.', link: 'https://www.duhochangluong.edu.vn/du-hoc-singapore-hl18.html' },
+    { name: 'Châu Âu', flag: '🇪🇺', desc: 'Văn hóa đa dạng, nhiều chương trình miễn học phí.', link: 'https://www.duhochangluong.edu.vn/du-hoc-chau-au-hl230.html' }
   ],
   faqs: [
     {
       q: 'Tôi chưa chọn được nước thì có đăng ký được không?',
-      a: 'Hoàn toàn được. Chuyên viên sẽ dựa trên học lực, ngành học, tài chính và mục tiêu để gợi ý các lựa chọn phù hợp nhất.'
+      a: 'Hoàn toàn được. Chuyên gia sẽ dựa trên học lực, ngành học, tài chính và mục tiêu để gợi ý các lựa chọn phù hợp nhất.'
     },
     {
       q: 'Chi phí tư vấn là bao nhiêu?',

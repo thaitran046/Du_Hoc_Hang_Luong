@@ -17,7 +17,7 @@ export default function BottomCTA() {
             BẠN CHƯA BIẾT BẮT ĐẦU HÀNH TRÌNH DU HỌC TỪ ĐÂU?
           </h2>
           <p className="text-lg md:text-xl text-red-100 mb-10 opacity-90">
-            Hãy để chuyên viên Hằng Lương giúp bạn xây dựng lộ trình du học phù hợp nhất với điều kiện và mục tiêu của bạn.
+            Hãy để chuyên gia Hằng Lương giúp bạn xây dựng lộ trình du học phù hợp nhất với điều kiện và mục tiêu của bạn.
           </p>
           <a 
             href="#registration-form" onClick={() => track('click_cta', { location: 'bottom_cta', cta: 'free_consultation' })} 
