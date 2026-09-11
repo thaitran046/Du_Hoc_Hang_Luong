@@ -3,7 +3,7 @@ import { content } from '../lib/content';
 import LeadForm from './LeadForm';
 import { Calendar } from 'lucide-react';
 
-const YOUTUBE_VIDEO_ID = 'hmTKHxzMYyw';
+const YOUTUBE_VIDEO_ID = '7vQ1S7m4NtE';
 
 export default function Hero() {
   const playerRef = useRef(null);
