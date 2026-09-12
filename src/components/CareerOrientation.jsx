@@ -65,7 +65,7 @@ export default function CareerOrientation() {
         {/* CTA */}
         <div className="text-center">
           <a
-            href="https://www.duhochangluong.edu.vn/tin-tuc/ngay-hoi-du-hoc-quoc-te-2026-giai-ma-lo-trinh-chien-luoc-cho-the-he-gen-z-w4575.html"
+            href="https://www.duhochangluong.edu.vn/"
             target="_blank"
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-2 rounded-full bg-brand-red px-8 py-3.5 font-bold text-white shadow-lg shadow-red-500/25 transition-all duration-300 hover:bg-red-700 hover:scale-105 active:scale-100"
