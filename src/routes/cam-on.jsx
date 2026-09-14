@@ -44,7 +44,7 @@ export default function ThankYouPage() {
             </a>
             
             <a 
-              href="/" 
+              href="https://www.duhochangluong.edu.vn/" 
               className="w-full bg-slate-50 text-slate-900 py-4 rounded-xl font-bold flex items-center justify-center space-x-2 border-2 border-slate-100 hover:bg-slate-100 transition-all"
             >
               <span>XEM THÊM CÁC CHƯƠNG TRÌNH DU HỌC</span>
