@@ -22,7 +22,7 @@ const NEED_MAP = {
   'Học bổng': 'Học Bổng',
   'Học Bổng': 'Học Bổng',
 
-  'Hồ sơ nhập học': 'Hồ sơ nhập học',
+  'Hồ sơ du học': 'Hồ sơ du học',
 
   Visa: 'Visa',
 
@@ -30,7 +30,7 @@ const NEED_MAP = {
 
   'Hướng nghiệp': 'Hướng nghiệp',
 
-  'Lộ trình học': 'Lộ trình học',
+  'Lộ trình du học': 'Lộ trình du học',
 };
 
 // ========================================

@@ -70,7 +70,7 @@ export default function Footer() {
           </a>
 
           <p className="mt-5 max-w-2xl text-sm leading-6 text-slate-400 md:text-base">
-            Đại diện tuyển sinh chính thức của hàng trăm trường Đại học,
+            20+ năm kinh nghiệm trong ngành tư vấn du học, đồng hành cùng hàng nghìn sinh viên.
             Cao đẳng uy tín toàn cầu. Đồng hành cùng học sinh và phụ huynh
             xây dựng lộ trình du học minh bạch và hiệu quả.
           </p>
