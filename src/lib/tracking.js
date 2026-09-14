@@ -10,6 +10,13 @@ const TRACKING_KEYS = [
   'msclkid'
 ];
 
+
+/*
+|--------------------------------------------------------------------------
+| Attribution
+|--------------------------------------------------------------------------
+*/
+
 export function captureAttribution() {
   const params = new URLSearchParams(window.location.search);
   const saved = {};
@@ -45,6 +52,7 @@ export function captureAttribution() {
   return saved;
 }
 
+
 export function getAttribution() {
   const data = {};
 
@@ -68,62 +76,133 @@ export function getAttribution() {
   return data;
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| TikTok Event Mapping
+|--------------------------------------------------------------------------
+|
+| Event nội bộ:
+|
+| form_step_1
+| select_event_location
+| submit_form
+| generate_lead
+| thank_you_view
+|
+| TikTok conversion chính:
+|
+| generate_lead -> CompleteRegistration
+|
+*/
+
+function getTikTokEvent(event) {
+  const map = {
+    generate_lead: 'CompleteRegistration'
+  };
+
+  return map[event] || event;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Main Tracking Function
+|--------------------------------------------------------------------------
+*/
+
 export function track(event, params = {}) {
-  const payload = {
-    event,
-    ...getAttribution(),
+  const attribution = getAttribution();
+
+  const eventParams = {
+    ...attribution,
     ...params
   };
 
-  // Google Tag Manager
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(payload);
 
-  // GA4
+  /*
+  |--------------------------------------------------------------------------
+  | Google Tag Manager
+  |--------------------------------------------------------------------------
+  */
+
+  window.dataLayer = window.dataLayer || [];
+
+  window.dataLayer.push({
+    event,
+    ...eventParams
+  });
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Google Analytics 4
+  |--------------------------------------------------------------------------
+  */
+
   if (typeof window.gtag === 'function') {
     window.gtag(
       'event',
       event,
-      params
+      eventParams
     );
   }
 
-  // Meta Pixel
-  if (typeof window.fbq === 'function') {
-    const fbEvent =
-      event === 'generate_lead'
-        ? 'Lead'
-        : event === 'page_view'
-        ? 'PageView'
-        : null;
 
-    if (fbEvent) {
+  /*
+  |--------------------------------------------------------------------------
+  | Meta Pixel
+  |--------------------------------------------------------------------------
+  |
+  | Chỉ generate_lead được tính là Lead.
+  |
+  | Không map submit_form thành Lead để tránh đếm trùng.
+  |
+  */
+
+  if (typeof window.fbq === 'function') {
+    if (event === 'generate_lead') {
       window.fbq(
         'track',
-        fbEvent,
-        params
+        'Lead',
+        eventParams
       );
     }
   }
 
-  // TikTok Pixel
+
+  /*
+  |--------------------------------------------------------------------------
+  | TikTok Pixel
+  |--------------------------------------------------------------------------
+  |
+  | generate_lead -> CompleteRegistration
+  |
+  | Các event còn lại vẫn là custom event.
+  |
+  */
+
   if (
-    window.ttq?.track &&
+    window.ttq &&
+    typeof window.ttq.track === 'function' &&
     event !== 'page_view'
   ) {
-    if (event === 'generate_lead') {
-      window.ttq.track(
-        'CompleteRegistration',
-        params
-      );
-    } else {
-      window.ttq.track(
-        event,
-        params
-      );
-    }
+    const tiktokEvent =
+      getTikTokEvent(event);
+
+    window.ttq.track(
+      tiktokEvent,
+      eventParams
+    );
   }
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Script Loader
+|--------------------------------------------------------------------------
+*/
 
 function loadScript(src, id) {
   if (
@@ -146,6 +225,13 @@ function loadScript(src, id) {
   document.head.appendChild(script);
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Tracking
+|--------------------------------------------------------------------------
+*/
+
 export function initTracking() {
   captureAttribution();
 
@@ -166,7 +252,13 @@ export function initTracking() {
   const ads =
     env.VITE_GOOGLE_ADS_ID;
 
-  // Google Tag Manager
+
+  /*
+  |--------------------------------------------------------------------------
+  | Google Tag Manager
+  |--------------------------------------------------------------------------
+  */
+
   if (gtm) {
     window.dataLayer =
       window.dataLayer || [];
@@ -182,9 +274,16 @@ export function initTracking() {
     );
   }
 
-  // GA4 / Google Ads
+
+  /*
+  |--------------------------------------------------------------------------
+  | GA4 / Google Ads
+  |--------------------------------------------------------------------------
+  */
+
   if (ga4 || ads) {
-    const id = ga4 || ads;
+    const id =
+      ga4 || ads;
 
     loadScript(
       `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`,
@@ -218,30 +317,52 @@ export function initTracking() {
     }
   }
 
-  // Meta Pixel
-  if (meta) {
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;
 
-      n=f.fbq=function(){
+  /*
+  |--------------------------------------------------------------------------
+  | Meta Pixel
+  |--------------------------------------------------------------------------
+  */
+
+  if (meta) {
+    !function(f,b,e,v,n,t,s) {
+
+      if (f.fbq) return;
+
+      n = f.fbq = function() {
+
         n.callMethod
-          ? n.callMethod.apply(n,arguments)
-          : n.queue.push(arguments);
+          ? n.callMethod.apply(
+              n,
+              arguments
+            )
+          : n.queue.push(
+              arguments
+            );
       };
 
-      if(!f._fbq)f._fbq=n;
+      if (!f._fbq) {
+        f._fbq = n;
+      }
 
-      n.push=n;
-      n.loaded=!0;
-      n.version='2.0';
-      n.queue=[];
+      n.push = n;
+      n.loaded = true;
+      n.version = '2.0';
+      n.queue = [];
 
-      t=b.createElement(e);
-      t.async=!0;
-      t.src=v;
+      t =
+        b.createElement(e);
 
-      s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s);
+      t.async = true;
+      t.src = v;
+
+      s =
+        b.getElementsByTagName(e)[0];
+
+      s.parentNode.insertBefore(
+        t,
+        s
+      );
 
     }(
       window,
@@ -254,16 +375,33 @@ export function initTracking() {
       'init',
       meta
     );
+
+    /*
+     * Meta PageView
+     */
+    window.fbq(
+      'track',
+      'PageView'
+    );
   }
 
-  // TikTok Pixel
+
+  /*
+  |--------------------------------------------------------------------------
+  | TikTok Pixel
+  |--------------------------------------------------------------------------
+  */
+
   if (tiktok) {
-    !function(w,d,t){
-      w.TiktokAnalyticsObject=t;
+    !function(w,d,t) {
 
-      var ttq=w[t]=w[t]||[];
+      w.TiktokAnalyticsObject = t;
 
-      ttq.methods=[
+      var ttq =
+        w[t] =
+        w[t] || [];
+
+      ttq.methods = [
         'page',
         'track',
         'identify',
@@ -282,72 +420,97 @@ export function initTracking() {
         'grantConsent'
       ];
 
-      ttq.setAndDefer=function(t,e){
-        t[e]=function(){
-          t.push(
-            [e].concat(
-              Array.prototype.slice.call(
-                arguments,
-                0
-              )
-            )
-          );
-        };
-      };
+      ttq.setAndDefer =
+        function(t,e) {
 
-      for(
-        var i=0;
-        i<ttq.methods.length;
+          t[e] =
+            function() {
+
+              t.push(
+                [e].concat(
+                  Array.prototype.slice.call(
+                    arguments,
+                    0
+                  )
+                )
+              );
+            };
+        };
+
+      for (
+        var i = 0;
+        i < ttq.methods.length;
         i++
-      ){
+      ) {
         ttq.setAndDefer(
           ttq,
           ttq.methods[i]
         );
       }
 
-      ttq.load=function(e){
-        var n=
-          'https://analytics.tiktok.com/i18n/pixel/events.js';
 
-        ttq._i=
-          ttq._i||{};
+      ttq.load =
+        function(e) {
 
-        ttq._i[e]=[];
-        ttq._i[e]._u=n;
+          var n =
+            'https://analytics.tiktok.com/i18n/pixel/events.js';
 
-        ttq._t=
-          ttq._t||{};
+          ttq._i =
+            ttq._i || {};
 
-        ttq._t[e]=+new Date;
+          ttq._i[e] = [];
 
-        var o=
-          d.createElement('script');
+          ttq._i[e]._u =
+            n;
 
-        o.type=
-          'text/javascript';
+          ttq._t =
+            ttq._t || {};
 
-        o.async=!0;
+          ttq._t[e] =
+            +new Date;
 
-        o.src=
-          n+
-          '?sdkid='+
-          e+
-          '&lib='+
-          t;
+          var o =
+            d.createElement(
+              'script'
+            );
 
-        var a=
-          d.getElementsByTagName(
-            'script'
-          )[0];
+          o.type =
+            'text/javascript';
 
-        a.parentNode.insertBefore(
-          o,
-          a
-        );
-      };
+          o.async = true;
 
-      ttq.load(tiktok);
+          o.src =
+            n +
+            '?sdkid=' +
+            e +
+            '&lib=' +
+            t;
+
+          var a =
+            d.getElementsByTagName(
+              'script'
+            )[0];
+
+          a.parentNode.insertBefore(
+            o,
+            a
+          );
+        };
+
+
+      /*
+       * Load TikTok Pixel
+       */
+
+      ttq.load(
+        tiktok
+      );
+
+
+      /*
+       * TikTok PageView
+       */
+
       ttq.page();
 
     }(
@@ -357,7 +520,13 @@ export function initTracking() {
     );
   }
 
-  // Internal page view
+
+  /*
+  |--------------------------------------------------------------------------
+  | Internal Page View
+  |--------------------------------------------------------------------------
+  */
+
   track(
     'page_view',
     {
