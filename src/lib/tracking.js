@@ -81,19 +81,6 @@ export function getAttribution() {
 |--------------------------------------------------------------------------
 | TikTok Event Mapping
 |--------------------------------------------------------------------------
-|
-| Event nội bộ:
-|
-| form_step_1
-| select_event_location
-| submit_form
-| generate_lead
-| thank_you_view
-|
-| TikTok conversion chính:
-|
-| generate_lead -> CompleteRegistration
-|
 */
 
 function getTikTokEvent(event) {
@@ -107,17 +94,131 @@ function getTikTokEvent(event) {
 
 /*
 |--------------------------------------------------------------------------
+| Meta Pixel Tracking
+|--------------------------------------------------------------------------
+*/
+
+function trackMeta(event, params = {}) {
+  if (typeof window.fbq !== 'function') {
+    console.warn(
+      '[Tracking] Meta Pixel chưa sẵn sàng:',
+      event
+    );
+
+    return;
+  }
+
+  try {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Conversion chính
+    |--------------------------------------------------------------------------
+    |
+    | Chỉ chạy SAU KHI form submit thành công.
+    |
+    */
+
+    if (event === 'generate_lead') {
+
+      window.fbq(
+        'track',
+        'Lead',
+        params
+      );
+
+      window.fbq(
+        'track',
+        'CompleteRegistration',
+        params
+      );
+
+      console.log(
+        '[Meta Pixel] Lead + CompleteRegistration',
+        params
+      );
+
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PageView đã được bắn riêng trong initTracking
+    |--------------------------------------------------------------------------
+    */
+
+    if (event === 'page_view') {
+      return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Events
+    |--------------------------------------------------------------------------
+    */
+
+    const allowedCustomEvents = [
+      'landing_page_view',
+      'engaged_session',
+      'form_step_1',
+      'select_event_location',
+      'submit_form',
+      'thank_you_view',
+      'form_error'
+    ];
+
+    if (
+      allowedCustomEvents.includes(event)
+    ) {
+      window.fbq(
+        'trackCustom',
+        event,
+        params
+      );
+
+      console.log(
+        `[Meta Pixel] ${event}`,
+        params
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      '[Tracking] Meta Pixel error:',
+      error
+    );
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
 | Main Tracking Function
 |--------------------------------------------------------------------------
 */
 
 export function track(event, params = {}) {
+
   const attribution = getAttribution();
 
   const eventParams = {
     ...attribution,
-    ...params
+    ...params,
+
+    page_path:
+      window.location.pathname,
+
+    page_url:
+      window.location.href
   };
+
+
+  console.log(
+    `[Tracking] ${event}`,
+    eventParams
+  );
 
 
   /*
@@ -126,7 +227,8 @@ export function track(event, params = {}) {
   |--------------------------------------------------------------------------
   */
 
-  window.dataLayer = window.dataLayer || [];
+  window.dataLayer =
+    window.dataLayer || [];
 
   window.dataLayer.push({
     event,
@@ -140,32 +242,19 @@ export function track(event, params = {}) {
   |--------------------------------------------------------------------------
   */
 
-  if (typeof window.gtag === 'function') {
-    window.gtag(
-      'event',
-      event,
-      eventParams
-    );
-  }
-
-
-  /*
-  |--------------------------------------------------------------------------
-  | Meta Pixel
-  |--------------------------------------------------------------------------
-  |
-  | Chỉ generate_lead được tính là Lead.
-  |
-  | Không map submit_form thành Lead để tránh đếm trùng.
-  |
-  */
-
-  if (typeof window.fbq === 'function') {
-    if (event === 'generate_lead') {
-      window.fbq(
-        'track',
-        'Lead',
+  if (
+    typeof window.gtag === 'function'
+  ) {
+    try {
+      window.gtag(
+        'event',
+        event,
         eventParams
+      );
+    } catch (error) {
+      console.error(
+        '[Tracking] GA4 error:',
+        error
       );
     }
   }
@@ -173,13 +262,20 @@ export function track(event, params = {}) {
 
   /*
   |--------------------------------------------------------------------------
+  | Meta Pixel
+  |--------------------------------------------------------------------------
+  */
+
+  trackMeta(
+    event,
+    eventParams
+  );
+
+
+  /*
+  |--------------------------------------------------------------------------
   | TikTok Pixel
   |--------------------------------------------------------------------------
-  |
-  | generate_lead -> CompleteRegistration
-  |
-  | Các event còn lại vẫn là custom event.
-  |
   */
 
   if (
@@ -187,13 +283,28 @@ export function track(event, params = {}) {
     typeof window.ttq.track === 'function' &&
     event !== 'page_view'
   ) {
-    const tiktokEvent =
-      getTikTokEvent(event);
 
-    window.ttq.track(
-      tiktokEvent,
-      eventParams
-    );
+    try {
+
+      const tiktokEvent =
+        getTikTokEvent(event);
+
+      window.ttq.track(
+        tiktokEvent,
+        eventParams
+      );
+
+      console.log(
+        `[TikTok Pixel] ${tiktokEvent}`,
+        eventParams
+      );
+
+    } catch (error) {
+      console.error(
+        '[Tracking] TikTok error:',
+        error
+      );
+    }
   }
 }
 
@@ -205,6 +316,7 @@ export function track(event, params = {}) {
 */
 
 function loadScript(src, id) {
+
   if (
     id &&
     document.getElementById(id)
@@ -233,9 +345,28 @@ function loadScript(src, id) {
 */
 
 export function initTracking() {
+
+  /*
+  |--------------------------------------------------------------------------
+  | Chống chạy 2 lần trong React StrictMode
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    window.__HL_TRACKING_INITIALIZED__
+  ) {
+    return;
+  }
+
+  window.__HL_TRACKING_INITIALIZED__ =
+    true;
+
+
   captureAttribution();
 
-  const env = import.meta.env;
+
+  const env =
+    import.meta.env;
 
   const gtm =
     env.VITE_GTM_ID;
@@ -253,6 +384,18 @@ export function initTracking() {
     env.VITE_GOOGLE_ADS_ID;
 
 
+  console.log(
+    '[Tracking] Initializing',
+    {
+      GTM: Boolean(gtm),
+      GA4: Boolean(ga4),
+      META: Boolean(meta),
+      TIKTOK: Boolean(tiktok),
+      GOOGLE_ADS: Boolean(ads)
+    }
+  );
+
+
   /*
   |--------------------------------------------------------------------------
   | Google Tag Manager
@@ -260,6 +403,7 @@ export function initTracking() {
   */
 
   if (gtm) {
+
     window.dataLayer =
       window.dataLayer || [];
 
@@ -282,6 +426,7 @@ export function initTracking() {
   */
 
   if (ga4 || ads) {
+
     const id =
       ga4 || ads;
 
@@ -290,17 +435,23 @@ export function initTracking() {
       'hl-gtag'
     );
 
+
     window.dataLayer =
       window.dataLayer || [];
 
-    window.gtag = function () {
-      window.dataLayer.push(arguments);
-    };
+
+    window.gtag =
+      window.gtag ||
+      function () {
+        window.dataLayer.push(arguments);
+      };
+
 
     window.gtag(
       'js',
       new Date()
     );
+
 
     if (ga4) {
       window.gtag(
@@ -308,6 +459,7 @@ export function initTracking() {
         ga4
       );
     }
+
 
     if (ads) {
       window.gtag(
@@ -325,39 +477,63 @@ export function initTracking() {
   */
 
   if (meta) {
-    !function(f,b,e,v,n,t,s) {
 
-      if (f.fbq) return;
+    !function(
+      f,
+      b,
+      e,
+      v,
+      n,
+      t,
+      s
+    ) {
 
-      n = f.fbq = function() {
+      /*
+       * Nếu fbq đã có thì không khởi tạo lại.
+       */
 
-        n.callMethod
-          ? n.callMethod.apply(
-              n,
-              arguments
-            )
-          : n.queue.push(
-              arguments
-            );
-      };
+      if (f.fbq) {
+        return;
+      }
+
+
+      n =
+        f.fbq =
+        function () {
+
+          n.callMethod
+            ? n.callMethod.apply(
+                n,
+                arguments
+              )
+            : n.queue.push(
+                arguments
+              );
+        };
+
 
       if (!f._fbq) {
         f._fbq = n;
       }
+
 
       n.push = n;
       n.loaded = true;
       n.version = '2.0';
       n.queue = [];
 
+
       t =
         b.createElement(e);
 
       t.async = true;
+
       t.src = v;
+
 
       s =
         b.getElementsByTagName(e)[0];
+
 
       s.parentNode.insertBefore(
         t,
@@ -371,17 +547,31 @@ export function initTracking() {
       'https://connect.facebook.net/en_US/fbevents.js'
     );
 
+
     window.fbq(
       'init',
       meta
     );
 
+
     /*
-     * Meta PageView
+     * PageView chuẩn Meta
      */
+
     window.fbq(
       'track',
       'PageView'
+    );
+
+
+    console.log(
+      '[Meta Pixel] initialized:',
+      meta
+    );
+  } else {
+
+    console.warn(
+      '[Tracking] VITE_META_PIXEL_ID chưa được cấu hình'
     );
   }
 
@@ -393,6 +583,7 @@ export function initTracking() {
   */
 
   if (tiktok) {
+
     !function(w,d,t) {
 
       w.TiktokAnalyticsObject = t;
@@ -400,6 +591,7 @@ export function initTracking() {
       var ttq =
         w[t] =
         w[t] || [];
+
 
       ttq.methods = [
         'page',
@@ -420,6 +612,7 @@ export function initTracking() {
         'grantConsent'
       ];
 
+
       ttq.setAndDefer =
         function(t,e) {
 
@@ -437,11 +630,13 @@ export function initTracking() {
             };
         };
 
+
       for (
         var i = 0;
         i < ttq.methods.length;
         i++
       ) {
+
         ttq.setAndDefer(
           ttq,
           ttq.methods[i]
@@ -455,29 +650,34 @@ export function initTracking() {
           var n =
             'https://analytics.tiktok.com/i18n/pixel/events.js';
 
+
           ttq._i =
             ttq._i || {};
 
-          ttq._i[e] = [];
 
-          ttq._i[e]._u =
-            n;
+          ttq._i[e] = [];
+          ttq._i[e]._u = n;
+
 
           ttq._t =
             ttq._t || {};
 
+
           ttq._t[e] =
-            +new Date;
+            +new Date();
+
 
           var o =
             d.createElement(
               'script'
             );
 
+
           o.type =
             'text/javascript';
 
           o.async = true;
+
 
           o.src =
             n +
@@ -486,10 +686,12 @@ export function initTracking() {
             '&lib=' +
             t;
 
+
           var a =
             d.getElementsByTagName(
               'script'
             )[0];
+
 
           a.parentNode.insertBefore(
             o,
@@ -498,18 +700,10 @@ export function initTracking() {
         };
 
 
-      /*
-       * Load TikTok Pixel
-       */
-
       ttq.load(
         tiktok
       );
 
-
-      /*
-       * TikTok PageView
-       */
 
       ttq.page();
 
